@@ -15,7 +15,6 @@ public fun Navigator.back(
         state.entries.let { entries ->
             entries.subList(0, (entries.size - 1).coerceAtLeast(0))
         }.let(::NavState)
-
     }
 }
 

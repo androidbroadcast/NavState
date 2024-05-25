@@ -46,6 +46,9 @@ private class NavCommandsQueue(
             .launchIn(commandsScope)
     }
 
+    val isCancelled: Boolean
+        get() = !commandsScope.isActive
+
     fun stop() {
         commandsScope.cancel()
     }
