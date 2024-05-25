@@ -43,13 +43,20 @@ kotlin {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                implementation(projects.core)
+                api(projects.core)
+                implementation(libs.essenty.backhandler)
             }
         }
 
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
+            }
+        }
+
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
             }
         }
     }
