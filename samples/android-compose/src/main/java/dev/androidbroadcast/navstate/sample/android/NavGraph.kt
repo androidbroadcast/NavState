@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 sealed interface PingPongDest: NavDest {
 
     @Serializable
-    class Ping(): PingPongDest
+    class Ping : PingPongDest
 
     @Serializable
-    class Pong(): PingPongDest
+    class Pong : PingPongDest
 }
