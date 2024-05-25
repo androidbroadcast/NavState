@@ -16,9 +16,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PingPongTheme {
-                BackHandler {
-
-                }
                 NavHost(
                     initialDestination = PingPongDest.Ping(),
                     onRootBack = { finish() }
