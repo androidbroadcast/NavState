@@ -22,11 +22,14 @@ fun RootScreen() {
     ) {
         val topEntry by rememberNavTopEntry()
         when (val dest = topEntry.destination) {
-            is UserListDest -> UserListScreen()
+            is UserListDest -> UserListScreen(onItemSelected = { id -> navgiator.enqueue(Forward(ProfileDest(id)))})
             is ProfileDest -> ProfileScreen(userId = dest.userId)
         }
     }
 }
+
+@Composable
+fun UserListScreen(onItemSelected: (String) -> Unit) {...}
 ```
 
 Facts about library:
