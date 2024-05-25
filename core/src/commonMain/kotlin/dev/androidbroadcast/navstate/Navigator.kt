@@ -14,14 +14,12 @@ public class Navigator(
     public val currentState: NavState
         get() = _stateFlow.value
 
-    public fun enqueue(modifier: NavModifier = NavModifier, command: NavCommand) {
-        commandsQueue.enqueue(command, modifier)
+    public fun enqueue(command: NavCommand) {
+        commandsQueue.enqueue(command)
     }
 
-    internal fun execute(modifier: NavModifier = NavModifier, command: NavCommand) {
-        _stateFlow.value = currentState.let(modifier::beforeCommand)
-            .let(command::execute)
-            .let(modifier::afterCommand)
+    internal fun execute(command: NavCommand) {
+        _stateFlow.value = command.execute(currentState)
     }
 }
 

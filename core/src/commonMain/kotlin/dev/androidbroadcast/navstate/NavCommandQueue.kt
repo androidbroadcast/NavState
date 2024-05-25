@@ -15,7 +15,7 @@ internal interface NavCommandsQueue {
 
     fun stop()
 
-    fun enqueue(command: NavCommand, modifier: NavModifier = NavModifier)
+    fun enqueue(command: NavCommand)
 }
 
 internal class DefaultNavCommandsQueue(
@@ -25,11 +25,10 @@ internal class DefaultNavCommandsQueue(
         CoroutineScope(SupervisorJob() + Dispatchers.Main)
 ): NavCommandsQueue {
 
-    private val queue =
-        MutableSharedFlow<NavCommandEntry>(extraBufferCapacity = Int.MAX_VALUE)
+    private val queue = MutableSharedFlow<NavCommand>(extraBufferCapacity = Int.MAX_VALUE)
 
     init {
-        queue.map { (command, modifier) -> navigator.execute(modifier, command) }
+        queue.map(navigator::execute)
             .launchIn(commandsScope)
     }
 
@@ -40,12 +39,7 @@ internal class DefaultNavCommandsQueue(
         commandsScope.cancel()
     }
 
-    override fun enqueue(command: NavCommand, modifier: NavModifier) {
-        queue.tryEmit(NavCommandEntry(command, modifier))
+    override fun enqueue(command: NavCommand) {
+        queue.tryEmit(command)
     }
 }
-
-internal data class NavCommandEntry(
-    val command: NavCommand,
-    val modifier: NavModifier,
-)

@@ -11,13 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.androidbroadcast.navstate.Forward
 import dev.androidbroadcast.navstate.LocalNavigator
-import dev.androidbroadcast.navstate.forward
 
 @Composable
-fun Ping(
-    modifier: Modifier = Modifier,
-) {
+fun Ping(modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize(),
@@ -25,13 +23,13 @@ fun Ping(
         Column {
             Text(
                 text = "Ping",
-                modifier = modifier
+                modifier = modifier,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.forward(PingPongDest.Pong()) }) {
+            Button(onClick = { navigator.enqueue(Forward(PingPongDest.Pong())) }) {
                 Text(text = "Next")
             }
         }
@@ -39,9 +37,7 @@ fun Ping(
 }
 
 @Composable
-fun Pong(
-    modifier: Modifier = Modifier,
-) {
+fun Pong(modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize(),
@@ -49,13 +45,13 @@ fun Pong(
         Column {
             Text(
                 text = "Pong",
-                modifier = modifier
+                modifier = modifier,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.forward(PingPongDest.Ping()) }) {
+            Button(onClick = { navigator.enqueue(Forward(PingPongDest.Ping())) }) {
                 Text(text = "Next")
             }
         }

@@ -16,8 +16,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             PingPongTheme {
                 NavHost(
-                    initialDestination = PingPongDest.Ping(),
-                    onRootBack = { finish() }
+                    initialDestination = PingPongDest.root,
+                    onRootBack = this@MainActivity::finish,
                 ) {
                     val topEntry by rememberNavTopEntry()
                     when (val dest = topEntry.destination) {
@@ -30,4 +30,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
