@@ -32,3 +32,4 @@ dependencyResolutionManagement {
 rootProject.name = "multiplatform-library-template"
 include(":compose")
 include(":core")
+include(":samples:android-compose")
