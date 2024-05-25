@@ -6,37 +6,39 @@ public interface NavModifier {
 
     public fun beforeCommand(state: NavState): NavState = state
 
-    public fun then(option: NavModifier): NavModifier = when {
-        option is NavOptions -> NavOptions(buildList {
+    public fun then(modifier: NavModifier): NavModifier = when {
+        modifier is NavModifiers -> NavModifiers(buildList {
             add(this@NavModifier)
-            addAll(option.options)
+            addAll(modifier.modifiers)
         })
 
-        else -> NavOptions(listOf(this, option))
+        else -> NavModifiers(listOf(this, modifier))
     }
 
     public companion object : NavModifier {
 
-        override fun then(option: NavModifier): NavModifier = option
+        override fun then(modifier: NavModifier): NavModifier = modifier
     }
 }
 
-private class NavOptions(
-    val options: List<NavModifier>
+private class NavModifiers(
+    val modifiers: List<NavModifier>
 ) : NavModifier {
 
     override fun afterCommand(state: NavState): NavState {
-        return options.fold(state) { acc, option -> option.afterCommand(acc) }
+        return modifiers.fold(state) { acc, modifier -> modifier.afterCommand(acc) }
     }
 
     override fun beforeCommand(state: NavState): NavState {
-        return options.fold(state) { acc, option -> option.beforeCommand(acc) }
+        return modifiers.fold(state) { acc, modifier -> modifier.beforeCommand(acc) }
     }
 
-    override fun then(option: NavModifier): NavModifier {
-        return NavOptions(buildList {
-            addAll(options)
-            if (option is NavOptions) addAll(option.options) else add(option)
-        })
+    override fun then(modifier: NavModifier): NavModifier {
+        return NavModifiers(
+            modifiers = buildList {
+                addAll(modifiers)
+                if (modifier is NavModifiers) addAll(modifier.modifiers) else add(modifier)
+            }
+        )
     }
 }

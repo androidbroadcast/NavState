@@ -13,7 +13,7 @@ public fun Navigator.back(
 ) {
     enqueue(modifier) { state ->
         state.entries.let { entries ->
-            entries.subList(0, (entries.size - 1).coerceAtLeast(0))
+            entries.subList(0, (entries.size - 1).coerceAtLeast(1))
         }.let(::NavState)
     }
 }
