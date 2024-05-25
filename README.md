@@ -17,19 +17,22 @@ class ProfileDest(val userId: UserId): NavDest
 @Composable
 fun RootScreen() {
     NavHost(
-        initialDestination = PingPongDest.Ping(),
+        initialDestination = UserListScreen(),
         onRootBack = { finish() }
     ) {
         val topEntry by rememberNavTopEntry()
         when (val dest = topEntry.destination) {
-            is UserListDest -> UserListScreen(onItemSelected = { id -> navgiator.enqueue(Forward(ProfileDest(id)))})
+            is UserListDest -> UserListScreen()
             is ProfileDest -> ProfileScreen(userId = dest.userId)
         }
     }
 }
 
 @Composable
-fun UserListScreen(onItemSelected: (String) -> Unit) {...}
+fun UserListScreen() {
+    val navigator = LocalNavigator.current
+    val onItemSelected: (String) -> Unit = { id -> navgiator.enqueue(Forward(ProfileDest(id)))}
+}
 ```
 
 Facts about library:
