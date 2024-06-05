@@ -12,16 +12,22 @@ plugins {
 }
 
 allprojects {
+    plugins.whenPluginAdded {
+        if (plugins.hasPlugin(libs.plugins.compose.compiler.get().pluginId)
+            && plugins.hasPlugin(libs.plugins.detekt.get().pluginId)
+        ) {
+            dependencies {
+                "detektPlugins"(libs.detekt.plugin.kode.composeRules)
+                "detektPlugins"(libs.detekt.plugin.nlopez.composeRules)
+            }
+        }
+    }
+
     afterEvaluate {
         plugins.apply(libs.plugins.detekt.get().pluginId)
 
         extensions.configure(DetektExtension::class) {
             config.setFrom(rootProject.file("config/detekt/detekt.yml"))
-        }
-
-        dependencies {
-            "detektPlugins"(libs.detekt.plugin.kode.composeRules)
-            "detektPlugins"(libs.detekt.plugin.nlopez.composeRules)
         }
     }
 }
