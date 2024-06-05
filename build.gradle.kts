@@ -18,5 +18,10 @@ allprojects {
         extensions.configure(DetektExtension::class) {
             config.setFrom(rootProject.file("config/detekt/detekt.yml"))
         }
+
+        dependencies {
+            "detektPlugins"(libs.detekt.plugin.kode.composeRules)
+            "detektPlugins"(libs.detekt.plugin.nlopez.composeRules)
+        }
     }
 }
