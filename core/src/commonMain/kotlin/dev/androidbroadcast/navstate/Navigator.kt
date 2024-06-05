@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.*
 public class Navigator(
     initialState: NavState = NavState(emptyList())
 ) {
+
     private val commandsQueue = DefaultNavCommandsQueue(this)
     private val _stateFlow = MutableStateFlow(initialState)
 

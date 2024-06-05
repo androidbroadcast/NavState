@@ -4,6 +4,7 @@ public class Forward(
     private val dest: NavDest,
     private val tags: List<Any> = emptyList(),
 ) : NavCommand {
+
     override fun execute(state: NavState): NavState {
         return state.then(NavEntry(dest, tags))
     }
@@ -19,6 +20,7 @@ public fun Back(): NavCommand = PopTop()
 public class BackTo(
     private val tag: Any,
 ) : NavCommand {
+
     override fun execute(state: NavState): NavState {
         val entries = state.entries
         val lastIndex = entries.indexOfLast { tag in it.tags }
@@ -33,6 +35,7 @@ public inline fun Navigator.replaceState(crossinline newState: () -> NavState) {
 public class PopTop(
     private val count: Int = 1,
 ) : NavCommand {
+
     init {
         require(count > 0) { "Count must be positive value" }
     }
@@ -48,6 +51,7 @@ public class PopTop(
 }
 
 private class ClearState : NavCommand {
+
     override fun execute(state: NavState): NavState {
         return NavState(entries = emptyList())
     }

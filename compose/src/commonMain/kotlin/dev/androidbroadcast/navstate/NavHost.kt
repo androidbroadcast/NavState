@@ -22,7 +22,7 @@ public fun rememberNavTopEntry(): State<NavEntry> {
         .map { it.entries.last() }
         .collectAsState(
             initial = navigator.currentState.entries.last(),
-            context = Dispatchers.Main.immediate
+            context = Dispatchers.Main.immediate,
         )
 }
 
@@ -60,7 +60,7 @@ public fun NavHost(
             } else {
                 onRootBack()
             }
-        }
+        },
     )
 
     CompositionLocalProvider(

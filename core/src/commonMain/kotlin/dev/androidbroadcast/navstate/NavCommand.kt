@@ -1,6 +1,7 @@
 package dev.androidbroadcast.navstate
 
 public fun interface NavCommand {
+
     /**
      * Transform [NavState]
      *
@@ -25,6 +26,7 @@ public fun interface NavCommand {
 private class NavCommandList(
     val commands: List<NavCommand>,
 ) : NavCommand {
+
     override fun execute(state: NavState): NavState {
         return commands.fold(state) { accState, command -> command.execute(accState) }
     }
@@ -32,10 +34,10 @@ private class NavCommandList(
     override fun then(command: NavCommand): NavCommand {
         return NavCommandList(
             commands =
-                buildList {
-                    addAll(commands)
-                    if (command is NavCommandList) addAll(command.commands) else add(command)
-                },
+            buildList {
+                addAll(commands)
+                if (command is NavCommandList) addAll(command.commands) else add(command)
+            },
         )
     }
 }

@@ -11,6 +11,7 @@ sealed interface PingPongDest : NavDest {
     class Pong : PingPongDest
 
     companion object {
+
         val root = Ping()
     }
 }

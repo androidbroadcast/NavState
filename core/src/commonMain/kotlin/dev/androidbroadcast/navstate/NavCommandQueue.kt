@@ -21,9 +21,9 @@ internal interface NavCommandsQueue {
 internal class DefaultNavCommandsQueue(
     private val navigator: Navigator,
     private val commandsScope: CoroutineScope =
-        // Dispatchers.Main is right. Don't replace with Dispatchers.Main.immediate
+    // Dispatchers.Main is right. Don't replace with Dispatchers.Main.immediate
         CoroutineScope(SupervisorJob() + Dispatchers.Main)
-): NavCommandsQueue {
+) : NavCommandsQueue {
 
     private val queue = MutableSharedFlow<NavCommand>(extraBufferCapacity = Int.MAX_VALUE)
 

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class NavState(
     val entries: List<NavEntry>
-): List<NavEntry> by entries
+) : List<NavEntry> by entries
 
 public fun NavState.then(entry: NavEntry): NavState = NavState(entries + entry)
 
@@ -25,7 +25,8 @@ public fun buildNavState(
 
 public class NavStateBuilder internal constructor(
     entries: List<NavEntry> = emptyList()
-){
+) {
+
     internal val entries: MutableList<NavEntry> = entries.toMutableList()
 
     public fun add(entry: NavEntry) {
