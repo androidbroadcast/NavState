@@ -19,9 +19,9 @@ public fun rememberNavState(): State<NavState> {
 public fun rememberNavTopEntry(): State<NavEntry> {
     val navigator = checkNotNull(LocalNavigator.current)
     return navigator.stateFlow
-        .map { it.entries.last() }
+        .map { it.activeStack.entries.last() }
         .collectAsState(
-            initial = navigator.currentState.entries.last(),
+            initial = navigator.currentState.activeStack.entries.last(),
             context = Dispatchers.Main.immediate,
         )
 }
@@ -30,11 +30,20 @@ public fun rememberNavTopEntry(): State<NavEntry> {
 @NonRestartableComposable
 public fun NavHost(
     initialDestination: NavDest,
+    initialStackId: String,
     onRootBack: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     NavHost(
-        initialState = NavState(listOf(NavEntry(initialDestination))),
+        initialState = buildNavState {
+            add(
+                NavStack(
+                    initialStackId,
+                    entries = listOf(NavEntry(initialDestination)),
+                ),
+                makeActive = true,
+            )
+        },
         onRootBack,
         content,
     )
@@ -47,7 +56,7 @@ internal expect fun platformBackDispatcher(): BackDispatcher
 @NonRestartableComposable
 public fun NavHost(
     initialState: NavState,
-    onRootBack: () -> Unit,
+    onActiveStackRootBack: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val navigator = Navigator(initialState)
@@ -55,10 +64,10 @@ public fun NavHost(
     BackHandler(
         backHandler = platformBackDispatcher(),
         onBack = {
-            if (navigator.currentState.entries.size > 1) {
+            if (navigator.currentState.activeStack.entries.size > 1) {
                 navigator.enqueue(NavCommand.popTop(count = 1))
             } else {
-                onRootBack()
+                onActiveStackRootBack()
             }
         },
     )

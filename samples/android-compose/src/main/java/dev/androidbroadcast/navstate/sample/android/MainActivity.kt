@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PingPongTheme {
                 NavHost(
+                    initialStackId = "default",
                     initialDestination = PingPongNavGraph.root,
                     onRootBack = this@MainActivity::finish,
                 ) {
