@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package dev.androidbroadcast.navstate.sample.android.ui.theme
 
 import androidx.compose.ui.graphics.Color

@@ -17,13 +17,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             PingPongTheme {
                 NavHost(
-                    initialDestination = PingPongDest.root,
+                    initialDestination = PingPongNavGraph.root,
                     onRootBack = this@MainActivity::finish,
                 ) {
                     val topEntry by rememberNavTopEntry()
                     when (val dest = topEntry.destination) {
-                        is PingPongDest.Ping -> Ping()
-                        is PingPongDest.Pong -> Pong()
+                        is PingPongNavGraph.Ping -> Ping()
+                        is PingPongNavGraph.Pong -> Pong()
                         else -> error("Unhandled destination = $dest")
                     }
                 }

@@ -3,12 +3,12 @@ package dev.androidbroadcast.navstate.sample.android
 import dev.androidbroadcast.navstate.NavDest
 import kotlinx.serialization.Serializable
 
-sealed interface PingPongDest : NavDest {
+sealed interface PingPongNavGraph : NavDest {
     @Serializable
-    class Ping : PingPongDest
+    class Ping : PingPongNavGraph
 
     @Serializable
-    class Pong : PingPongDest
+    class Pong : PingPongNavGraph
 
     companion object {
 

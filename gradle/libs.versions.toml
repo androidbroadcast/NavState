@@ -13,6 +13,7 @@ junit = "4.13.2"
 androidx-lifecycle = "2.8.1"
 composeBom = "2024.05.00"
 essenty = "2.0.0"
+detekt = "1.23.6"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -44,3 +45,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

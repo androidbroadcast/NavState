@@ -29,7 +29,7 @@ fun Ping(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(Forward(PingPongDest.Pong())) }) {
+            Button(onClick = { navigator.enqueue(Forward(PingPongNavGraph.Pong())) }) {
                 Text(text = "Next")
             }
         }
@@ -51,7 +51,7 @@ fun Pong(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(Forward(PingPongDest.Ping())) }) {
+            Button(onClick = { navigator.enqueue(Forward(PingPongNavGraph.Ping())) }) {
                 Text(text = "Next")
             }
         }
