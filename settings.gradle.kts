@@ -29,7 +29,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "multiplatform-library-template"
+rootProject.name = "NavState"
 include(":compose")
 include(":core")
 include(":samples:android-compose")
