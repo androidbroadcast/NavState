@@ -28,7 +28,7 @@ class NavigationCommandTest {
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(Back())
+        navigator.enqueue(NavCommand.back())
 
         val expectedState =
             buildNavState {
@@ -47,7 +47,7 @@ class NavigationCommandTest {
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(Forward(TestNavDestinations.Details("testId")))
+        navigator.enqueue(NavCommand.forward(TestNavDestinations.Details("testId")))
 
         val expectedState =
             buildNavState {
@@ -69,7 +69,7 @@ class NavigationCommandTest {
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(BackTo(tag = "root"))
+        navigator.enqueue(NavCommand.backTo(tag = "root"))
 
         val expectedState =
             buildNavState {
@@ -86,7 +86,7 @@ class NavigationCommandTest {
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(Back())
+        navigator.enqueue(NavCommand.back())
 
         val expectedState =
             buildNavState {
@@ -103,7 +103,8 @@ class NavigationCommandTest {
                 add(TestNavDestinations.DataList)
             }
 
-        val replaceNavState: NavCommand = PopTop() + Forward(TestNavDestinations.Details("testId"))
+        val replaceNavState: NavCommand = NavCommand.popTop()
+            .forward(TestNavDestinations.Details("testId"))
 
         val navigator = Navigator(initialState)
         navigator.enqueue(replaceNavState)

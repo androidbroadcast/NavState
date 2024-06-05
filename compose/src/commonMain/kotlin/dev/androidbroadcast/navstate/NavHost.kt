@@ -56,7 +56,7 @@ public fun NavHost(
         backHandler = platformBackDispatcher(),
         onBack = {
             if (navigator.currentState.entries.size > 1) {
-                navigator.enqueue(PopTop())
+                navigator.enqueue(NavCommand.popTop(count = 1))
             } else {
                 onRootBack()
             }

@@ -11,8 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.androidbroadcast.navstate.Forward
 import dev.androidbroadcast.navstate.LocalNavigator
+import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.forward
 
 @Composable
 fun Ping(modifier: Modifier = Modifier) {
@@ -29,7 +30,7 @@ fun Ping(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(Forward(PingPongNavGraph.Pong())) }) {
+            Button(onClick = { navigator.enqueue(NavCommand.forward(PingPongNavGraph.Pong())) }) {
                 Text(text = "Next")
             }
         }
@@ -51,7 +52,7 @@ fun Pong(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(Forward(PingPongNavGraph.Ping())) }) {
+            Button(onClick = { navigator.enqueue(NavCommand.forward(PingPongNavGraph.Ping())) }) {
                 Text(text = "Next")
             }
         }

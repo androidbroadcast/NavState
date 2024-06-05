@@ -21,6 +21,13 @@ public fun interface NavCommand {
 
             else -> NavCommandList(listOf(this, command))
         }
+
+    public companion object : NavCommand {
+
+        override fun execute(state: NavState): NavState = state
+
+        override fun then(command: NavCommand): NavCommand = command
+    }
 }
 
 private class NavCommandList(
@@ -33,8 +40,7 @@ private class NavCommandList(
 
     override fun then(command: NavCommand): NavCommand {
         return NavCommandList(
-            commands =
-            buildList {
+            commands = buildList {
                 addAll(commands)
                 if (command is NavCommandList) addAll(command.commands) else add(command)
             },
@@ -45,8 +51,8 @@ private class NavCommandList(
 public operator fun NavCommand.plus(command: NavCommand): NavCommand = then(command)
 
 public fun NavCommand(vararg commands: NavCommand): NavCommand {
-    require(commands.isNotEmpty())
     return when (commands.size) {
+        0 -> NavCommand
         1 -> commands[0]
         else -> NavCommandList(commands.toList())
     }
