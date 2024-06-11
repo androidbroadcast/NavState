@@ -5,26 +5,20 @@ public fun NavCommand.forward(
     tags: List<Any> = emptyList(),
 ): NavCommand = then(
     NavCommand { state ->
-        state.then(NavEntry(dest, tags))
+        state.buildNavState {
+            add(state.activeStack.then(NavEntry(dest, tags)))
+        }
     },
 )
 
 @Deprecated(
     "Use PopTop() instead",
-    ReplaceWith("popTop(count = 1)")
+    ReplaceWith("popTop(count = 1)"),
 )
 public fun NavCommand.back(): NavCommand = popTop(count = 1)
 
-public fun NavCommand.backTo(
-    tag: Any,
-): NavCommand = then { state ->
-    val entries = state.entries
-    val lastIndex = entries.indexOfLast { tag in it.tags }
-    if (lastIndex >= 0) NavState(entries.subList(0, lastIndex + 1)) else state.copy()
-}
-
-public inline fun Navigator.replaceState(crossinline newState: () -> NavState) {
-    enqueue { _ -> newState() }
+public inline fun Navigator.replaceState(crossinline newState: () -> NavState): NavCommand {
+    return NavCommand { newState() }
 }
 
 public fun NavCommand.popTop(
@@ -33,14 +27,23 @@ public fun NavCommand.popTop(
     require(count > 0) { "Count must be positive value" }
     return then(
         NavCommand { state ->
-            val entries = state.entries.toMutableList()
-            NavState(entries.subList(0, (entries.size - count).coerceAtLeast(0)))
+            state.buildNavState {
+                add(
+                    state.activeStack.let { stack ->
+                        val entries = stack.entries.toMutableList()
+                        stack.copy(
+                            entries = entries.subList(0, (entries.size - count).coerceAtLeast(1)),
+                        )
+                    }
+                )
+            }
         },
     )
 }
 
-public fun NavCommand.clearState(): NavCommand {
-    return then(
-        NavCommand { NavState(entries = emptyList()) },
-    )
-}
+public fun NavCommand.switchStack(newActiveStackId: String): NavCommand = then(
+    NavCommand { state ->
+        val newActiveStack = state.stacks.firstOrNull { it.id == newActiveStackId }
+        if (newActiveStack != null) state.copy(activeStack = newActiveStack) else state
+    },
+)

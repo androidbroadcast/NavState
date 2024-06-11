@@ -11,6 +11,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+private const val NAV_STACK_DEFAULT = "default"
+
 class NavigationCommandTest {
 
     @BeforeTest
@@ -22,9 +24,14 @@ class NavigationCommandTest {
     fun `back works correctly`() {
         val initialState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.DataList)
-                add(TestNavDestinations.Details("testId"))
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.DataList)
+                        add(TestNavDestinations.Details("testId"))
+                    },
+                    makeActive = true,
+                )
             }
 
         val navigator = Navigator(initialState)
@@ -32,8 +39,13 @@ class NavigationCommandTest {
 
         val expectedState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.DataList)
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.DataList)
+                    },
+                    makeActive = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -42,38 +54,30 @@ class NavigationCommandTest {
     fun `forward works correctly`() {
         val initialState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.DataList)
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.DataList)
+                    },
+                    makeActive = true,
+                )
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(NavCommand.forward(TestNavDestinations.Details("testId")))
+        navigator.enqueue(
+            NavCommand.forward(TestNavDestinations.Details("testId")),
+        )
 
         val expectedState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.DataList)
-                add(TestNavDestinations.Details("testId"))
-            }
-        assertEquals(expectedState, navigator.currentState)
-    }
-
-    @Test
-    fun `backTo root works correctly`() {
-        val root = NavEntry(TestNavDestinations.Root, tags = listOf("root"))
-        val initialState =
-            buildNavState {
-                add(root.copy())
-                add(TestNavDestinations.DataList)
-                add(TestNavDestinations.Details("testId"))
-            }
-
-        val navigator = Navigator(initialState)
-        navigator.enqueue(NavCommand.backTo(tag = "root"))
-
-        val expectedState =
-            buildNavState {
-                add(root.copy())
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.DataList)
+                        add(TestNavDestinations.Details("testId"))
+                    },
+                    makeActive = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -82,15 +86,25 @@ class NavigationCommandTest {
     fun `back in root has no effect`() {
         val initialState =
             buildNavState {
-                add(NavEntry(TestNavDestinations.Root))
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(NavEntry(TestNavDestinations.Root))
+                    },
+                    makeActive = true,
+                )
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(NavCommand.back())
+        navigator.enqueue(NavCommand.popTop(count = 1))
 
         val expectedState =
             buildNavState {
-                add(NavEntry(TestNavDestinations.Root))
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(NavEntry(TestNavDestinations.Root))
+                    },
+                    makeActive = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -99,8 +113,13 @@ class NavigationCommandTest {
     fun `replace top works correctly`() {
         val initialState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.DataList)
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.DataList)
+                    },
+                    makeActive = true,
+                )
             }
 
         val replaceNavState: NavCommand = NavCommand.popTop()
@@ -111,8 +130,13 @@ class NavigationCommandTest {
 
         val expectedState =
             buildNavState {
-                add(TestNavDestinations.Root)
-                add(TestNavDestinations.Details("testId"))
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(TestNavDestinations.Root)
+                        add(TestNavDestinations.Details("testId"))
+                    },
+                    makeActive = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
