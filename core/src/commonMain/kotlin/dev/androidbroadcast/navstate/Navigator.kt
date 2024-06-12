@@ -2,9 +2,11 @@ package dev.androidbroadcast.navstate
 
 import kotlinx.coroutines.flow.*
 
-public class Navigator(initialState: NavState) {
+public class Navigator(
+    initialState: NavState,
+) {
+    private val commandsQueue: NavCommandsQueue = DefaultNavCommandsQueue(this)
 
-    private val commandsQueue = DefaultNavCommandsQueue(this)
     private val _stateFlow = MutableStateFlow(initialState)
 
     public val stateFlow: StateFlow<NavState>
@@ -17,8 +19,11 @@ public class Navigator(initialState: NavState) {
         commandsQueue.enqueue(command)
     }
 
-    internal fun execute(command: NavCommand) {
-        _stateFlow.value = command.execute(currentState).apply(NavState::validate)
+    internal fun updateState(state: NavState) {
+        _stateFlow.value = state.apply(NavState::validate)
     }
 }
 
+public inline fun Navigator.replaceState(crossinline newState: () -> NavState) {
+    enqueue(NavCommand { newState() })
+}

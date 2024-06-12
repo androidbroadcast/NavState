@@ -8,6 +8,13 @@ public data class NavStack(
     val entries: List<NavEntry>
 )
 
+public fun NavStack(
+    id: String,
+    entry: NavEntry,
+): NavStack {
+    return NavStack(id, listOf(entry))
+}
+
 internal fun NavStack.validate() {
     check(entries.isNotEmpty()) {
         "NavStack must have at least 1 NavEntry"
@@ -24,41 +31,27 @@ public class NavStackBuilder @PublishedApi internal constructor(
     @PublishedApi
     internal val entries: MutableList<NavEntry> = entries.toMutableList()
 
-    public fun add(entry: NavEntry) {
+    public fun add(entry: NavEntry): NavStackBuilder = apply {
         entries += entry
     }
 
-    public fun add(vararg entries: NavEntry) {
+    public fun add(vararg entries: NavEntry): NavStackBuilder = apply {
         this.entries += entries
     }
 
-    public fun addAll(entries: Collection<NavEntry>) {
+    public fun addAll(entries: Collection<NavEntry>): NavStackBuilder = apply {
         this.entries += entries
     }
 
-    public fun add(dest: NavDest, tags: List<Any> = emptyList()) {
+    public fun add(dest: NavDest, tags: List<Any> = emptyList()): NavStackBuilder = apply {
         add(NavEntry(dest, tags))
     }
-}
-
-public inline fun NavStack.buildNavStack(
-    id: String,
-    body: NavStackBuilder.() -> Unit
-): NavStack {
-    return buildNavStackInternal(NavStackBuilder(id, entries = this.entries), body)
 }
 
 public fun buildNavStack(
     id: String,
     body: NavStackBuilder.() -> Unit
 ): NavStack {
-    return buildNavStackInternal(NavStackBuilder(id, entries = emptyList()), body)
-}
-
-@PublishedApi
-internal inline fun buildNavStackInternal(
-    builder: NavStackBuilder,
-    body: NavStackBuilder.() -> Unit
-): NavStack = with(builder.apply(body)) {
-    return NavStack(builder.id, entries.toList())
+    val builder = NavStackBuilder(id, entries = emptyList()).apply(body)
+    return NavStack(builder.id, builder.entries.toList())
 }

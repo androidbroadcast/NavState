@@ -7,10 +7,9 @@ import kotlinx.serialization.Serializable
 public data class NavEntry(
     val destination: @Contextual NavDest,
     val tags: List<@Contextual Any> = emptyList(),
-) {
+)
 
-    public constructor(
-        destination: NavDest,
-        tag: Any,
-    ) : this(destination, listOf(tag))
-}
+public fun NavEntry(
+    destination: NavDest,
+    tag: Any,
+): NavEntry = NavEntry(destination, listOf(tag))

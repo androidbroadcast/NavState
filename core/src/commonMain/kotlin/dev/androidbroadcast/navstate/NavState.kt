@@ -6,7 +6,24 @@ import kotlinx.serialization.Serializable
 public data class NavState(
     val stacks: Set<NavStack>,
     val activeStack: NavStack,
-) : Set<NavStack> by stacks
+) : Set<NavStack> by stacks {
+
+    public companion object {
+
+        public const val DefaultStackId: String = "default"
+    }
+}
+
+public fun NavState(
+    initialDest: NavDest,
+    stackId: String = NavState.DefaultStackId,
+): NavState {
+    val stack = NavStack(stackId, listOf(NavEntry(initialDest)))
+    return NavState(
+        stacks = setOf(stack),
+        activeStack = stack,
+    )
+}
 
 internal fun NavState.validate() {
     check(stacks.isNotEmpty()) { "NavState must have at least 1 NavStack" }
@@ -65,24 +82,24 @@ public class NavStateBuilder @PublishedApi internal constructor(
         stacks.associateBy(keySelector = { it.id })
             .toMutableMap()
 
-    public fun add(stack: NavStack, makeActive: Boolean = false) {
+    public fun add(stack: NavStack, makeActive: Boolean = false): NavStateBuilder = apply {
         stacks[stack.id] = stack
         if (makeActive) activeStackId = stack.id
     }
 
-    public fun add(vararg stacks: NavStack) {
+    public fun add(vararg stacks: NavStack): NavStateBuilder = apply {
         this.stacks += stacks.associateBy { it.id }
     }
 
-    public fun addAll(stacks: Collection<NavStack>) {
+    public fun addAll(stacks: Collection<NavStack>): NavStateBuilder = apply {
         this.stacks += stacks.associateBy { it.id }
     }
 
-    public fun setActive(stack: NavStack) {
+    public fun setActive(stack: NavStack): NavStateBuilder = apply {
         activeStackId = stack.id
     }
 
-    public fun setActive(stackId: String) {
+    public fun setActive(stackId: String): NavStateBuilder = apply {
         activeStackId = stackId
     }
 }

@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 private const val NAV_STACK_DEFAULT = "default"
 
-class NavigationCommandTest {
+class PopTopTest {
 
     @BeforeTest
     fun setUp() {
@@ -21,22 +21,21 @@ class NavigationCommandTest {
     }
 
     @Test
-    fun `forward works correctly`() {
+    fun `popTop works correctly`() {
         val initialState =
             buildNavState {
                 add(
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
+                        add(TestNavDestinations.Details("testId"))
                                                           },
                     makeActive = true,
                     )
             }
 
         val navigator = Navigator(initialState)
-        navigator.enqueue(
-            NavCommand.forward(TestNavDestinations.Details("testId")),
-            )
+        navigator.enqueue(NavCommand.popTop())
 
         val expectedState =
             buildNavState {
@@ -44,7 +43,6 @@ class NavigationCommandTest {
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
-                        add(TestNavDestinations.Details("testId"))
                                                           },
                     makeActive = true,
                     )
@@ -53,32 +51,56 @@ class NavigationCommandTest {
     }
 
     @Test
-    fun `replace top works correctly`() {
+    fun `popTop single entry in root has no effect`() {
         val initialState =
             buildNavState {
                 add(
                     buildNavStack(id = NAV_STACK_DEFAULT) {
-                        add(TestNavDestinations.Root)
-                        add(TestNavDestinations.DataList)
+                        add(NavEntry(TestNavDestinations.Root))
                                                           },
                     makeActive = true,
                     )
             }
+
         val navigator = Navigator(initialState)
-        navigator.enqueue(
-            NavCommand.popTop()
-                .forward(TestNavDestinations.Details("testId"))
-        )
+        navigator.enqueue(NavCommand.popTop(count = 1))
 
         val expectedState =
             buildNavState {
                 add(
                     buildNavStack(id = NAV_STACK_DEFAULT) {
-                        add(TestNavDestinations.Root)
-                        add(TestNavDestinations.Details("testId"))
+                        add(NavEntry(TestNavDestinations.Root))
+                                                          },
+                    makeActive = true,
+                    )
+            }
+        assertEquals(expectedState, navigator.currentState)
+    }
+
+    @Test
+    fun `After popTop 2 entries in 2 entry Stack root entry remains`() {
+        val initialState =
+            buildNavState {
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(NavEntry(TestNavDestinations.Root))
+                        add(NavEntry(TestNavDestinations.DataList))
                     },
                     makeActive = true,
                 )
+            }
+
+        val navigator = Navigator(initialState)
+        navigator.enqueue(NavCommand.popTop(count = 2))
+
+        val expectedState =
+            buildNavState {
+                add(
+                    buildNavStack(id = NAV_STACK_DEFAULT) {
+                        add(NavEntry(TestNavDestinations.Root))
+                    },
+                    makeActive = true,
+               )
             }
         assertEquals(expectedState, navigator.currentState)
     }

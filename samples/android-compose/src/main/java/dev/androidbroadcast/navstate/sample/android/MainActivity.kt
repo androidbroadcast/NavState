@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.getValue
 import dev.androidbroadcast.navstate.NavHost
 import dev.androidbroadcast.navstate.rememberNavTopEntry
 import dev.androidbroadcast.navstate.sample.android.ui.theme.PingPongTheme
@@ -17,17 +16,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             PingPongTheme {
                 NavHost(
-                    initialStackId = "default",
                     initialDestination = PingPongNavGraph.root,
                     onRootBack = this@MainActivity::finish,
-                ) {
-                    val topEntry by rememberNavTopEntry()
-                    when (val dest = topEntry.destination) {
-                        is PingPongNavGraph.Ping -> Ping()
-                        is PingPongNavGraph.Pong -> Pong()
-                        else -> error("Unhandled destination = $dest")
-                    }
-                }
+                    {
+                        val topEntry = rememberNavTopEntry()
+                        when (val dest = topEntry.destination) {
+                            is PingPongNavGraph.Ping -> Ping()
+                            is PingPongNavGraph.Pong -> Pong()
+                            else -> error("Unhandled destination = $dest")
+                        }
+                    },
+                    initialStackId = "default",
+                )
             }
         }
     }

@@ -1,49 +1,48 @@
 package dev.androidbroadcast.navstate
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.backhandler.BackDispatcher
 import com.arkivanov.essenty.backhandler.BackHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 
-public val LocalNavigator: ProvidableCompositionLocal<Navigator?> = compositionLocalOf { null }
+public val LocalNavigator: ProvidableCompositionLocal<Navigator> =
+    compositionLocalOf { error("LocalNavigator must be called inside NavHost()") }
 
 @Composable
-public fun rememberNavState(): State<NavState> {
-    val navigator = checkNotNull(LocalNavigator.current)
-    return navigator.stateFlow.collectAsState(Dispatchers.Main.immediate)
+public fun rememberNavState(): NavState {
+    val navigator = LocalNavigator.current
+    val state = navigator.stateFlow.collectAsState(Dispatchers.Main.immediate)
+    val remState by remember { state }
+    return remState
 }
 
 @Composable
-public fun rememberNavTopEntry(): State<NavEntry> {
-    val navigator = checkNotNull(LocalNavigator.current)
-    return navigator.stateFlow
-        .map { it.activeStack.entries.last() }
-        .collectAsState(
-            initial = navigator.currentState.activeStack.entries.last(),
-            context = Dispatchers.Main.immediate,
-        )
+public fun rememberNavTopEntry(): NavEntry {
+    val navState = rememberNavState()
+    return navState.activeStack.entries.last()
 }
 
 @Composable
 @NonRestartableComposable
 public fun NavHost(
     initialDestination: NavDest,
-    initialStackId: String,
     onRootBack: () -> Unit,
     content: @Composable () -> Unit,
+    initialStackId: String = NavState.DefaultStackId,
 ) {
     NavHost(
-        initialState = buildNavState {
-            add(
-                NavStack(
-                    initialStackId,
-                    entries = listOf(NavEntry(initialDestination)),
-                ),
-                makeActive = true,
-            )
-        },
+        initialState = NavState(initialDestination, initialStackId),
         onRootBack,
         content,
     )
@@ -56,7 +55,19 @@ internal expect fun platformBackDispatcher(): BackDispatcher
 @NonRestartableComposable
 public fun NavHost(
     initialState: NavState,
-    onActiveStackRootBack: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalNavigator provides Navigator(initialState),
+        content,
+    )
+}
+
+@Composable
+@NonRestartableComposable
+public fun NavHost(
+    initialState: NavState,
+    onRootBack: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val navigator = Navigator(initialState)
@@ -67,7 +78,7 @@ public fun NavHost(
             if (navigator.currentState.activeStack.entries.size > 1) {
                 navigator.enqueue(NavCommand.popTop(count = 1))
             } else {
-                onActiveStackRootBack()
+                onRootBack()
             }
         },
     )

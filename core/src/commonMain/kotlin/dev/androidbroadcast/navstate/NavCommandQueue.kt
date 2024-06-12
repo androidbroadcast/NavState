@@ -7,6 +7,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 
 internal interface NavCommandsQueue {
@@ -28,7 +29,8 @@ internal class DefaultNavCommandsQueue(
     private val queue = MutableSharedFlow<NavCommand>(extraBufferCapacity = Int.MAX_VALUE)
 
     init {
-        queue.map(navigator::execute)
+        queue.map { it.execute(navigator.currentState) }
+            .onEach(navigator::updateState)
             .launchIn(commandsScope)
     }
 
