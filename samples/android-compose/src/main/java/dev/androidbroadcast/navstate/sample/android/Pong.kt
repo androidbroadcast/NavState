@@ -13,35 +13,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.androidbroadcast.navstate.LocalNavigator
 import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.forward
 
 @Composable
-fun Ping(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Column {
-            Text(
-                text = "Ping",
-                modifier = modifier,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(NavCommand.forward(PingPongNavGraph.Pong())) }) {
-                Text(text = "Next")
-            }
-        }
-    }
+@NavDest(dest = PingPongNavGraph.Pong::class)
+fun Pong(
+    dest: PingPongNavGraph.Pong,
+    modifier: Modifier = Modifier,
+) {
+    val navigator = LocalNavigator.current
+    Pong(
+        onNextClick = { navigator.enqueue(NavCommand.forward(PingPongNavGraph.Ping())) },
+        modifier,
+    )
 }
 
 @Composable
-fun Pong(modifier: Modifier = Modifier) {
+private fun Pong(
+    onNextClick: () -> Unit,
+    modifier: Modifier,
+) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         Column {
             Text(
@@ -51,8 +46,7 @@ fun Pong(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val navigator = checkNotNull(LocalNavigator.current)
-            Button(onClick = { navigator.enqueue(NavCommand.forward(PingPongNavGraph.Ping())) }) {
+            Button(onClick = onNextClick) {
                 Text(text = "Next")
             }
         }
