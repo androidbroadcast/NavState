@@ -20,7 +20,17 @@ public class Navigator(
     }
 
     internal fun updateState(state: NavState) {
-        _stateFlow.value = state.apply(NavState::validate)
+        _stateFlow.value = state.also(::validate)
+    }
+}
+
+private fun validate(navState: NavState) {
+    check(navState.stacks.isNotEmpty()) { "NavState must have at least 1 NavStack" }
+    check(navState.activeStack in navState.stacks) { "Active Stack isn't in stacks" }
+    navState.stacks.forEach { navStack ->
+        check(navStack.entries.isNotEmpty()) {
+            "NavStack must have at least 1 NavEntry"
+        }
     }
 }
 

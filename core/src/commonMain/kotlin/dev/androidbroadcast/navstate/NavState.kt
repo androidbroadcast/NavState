@@ -15,6 +15,18 @@ public data class NavState(
 }
 
 public fun NavState(
+    stacks: Set<NavStack>,
+    activeStackId: String = NavState.DefaultStackId,
+): NavState {
+    val activeStack = stacks.find { it.id == activeStackId }
+    requireNotNull(activeStack) { "`stacks` must contain a stack with id $activeStackId" }
+    return NavState(
+        stacks = stacks,
+        activeStack = activeStack,
+    )
+}
+
+public fun NavState(
     initialDest: NavDest,
     stackId: String = NavState.DefaultStackId,
 ): NavState {
@@ -23,12 +35,6 @@ public fun NavState(
         stacks = setOf(stack),
         activeStack = stack,
     )
-}
-
-internal fun NavState.validate() {
-    check(stacks.isNotEmpty()) { "NavState must have at least 1 NavStack" }
-    check(activeStack in stacks) { "Active Stack isn't in stacks" }
-    stacks.forEach(NavStack::validate)
 }
 
 public fun NavState.then(stack: NavStack): NavState {

@@ -15,12 +15,6 @@ public fun NavStack(
     return NavStack(id, listOf(entry))
 }
 
-internal fun NavStack.validate() {
-    check(entries.isNotEmpty()) {
-        "NavStack must have at least 1 NavEntry"
-    }
-}
-
 public fun NavStack.then(entry: NavEntry): NavStack = copy(entries = entries + entry)
 
 public class NavStackBuilder @PublishedApi internal constructor(
