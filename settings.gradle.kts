@@ -32,4 +32,6 @@ dependencyResolutionManagement {
 rootProject.name = "NavState"
 include(":compose")
 include(":core")
+include(":compose-annotations")
 include(":samples:android-compose")
+include(":compose-processor")
