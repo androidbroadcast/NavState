@@ -17,7 +17,7 @@ private val NavState by lazy { ClassName.bestGuess("dev.androidbroadcast.navstat
 private val Modifier by lazy { ClassName.bestGuess("androidx.compose.ui.Modifier") }
 
 private const val DestParamName = "dest"
-private const val DestIteratorFunName = "destIterator"
+private const val DestIteratorFunName = "DestChooser"
 
 internal fun generateNavHost(
     fileName: String,
