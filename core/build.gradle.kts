@@ -12,17 +12,33 @@ plugins {
 
 kotlin {
     explicitApi = ExplicitApiMode.Strict
-
     jvm()
+
     androidTarget {
         publishLibraryVariants("release")
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_17
+
+        compilations.all {
+            compileTaskProvider {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
+                    freeCompilerArgs.add("-Xjdk-release=${JavaVersion.VERSION_17}")
+                }
+            }
         }
     }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64(),
+    ).forEach {
+        it.binaries.framework {
+            baseName = "NavStateComposeCore"
+            isStatic = true
+        }
+    }
+
     linuxX64()
 
     sourceSets {
