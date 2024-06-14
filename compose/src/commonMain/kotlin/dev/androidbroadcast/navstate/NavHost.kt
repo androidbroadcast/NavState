@@ -38,8 +38,8 @@ public fun rememberNavTopEntry(): NavEntry {
 public fun NavHost(
     initialDestination: NavDest,
     onRootBack: () -> Unit,
-    content: @Composable () -> Unit,
     initialStackId: String = NavState.DefaultStackId,
+    content: @Composable () -> Unit,
 ) {
     NavHost(
         initialState = NavState(initialDestination, initialStackId),
