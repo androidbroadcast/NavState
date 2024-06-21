@@ -66,7 +66,7 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(projects.composeAnnotations)
-    implementation(projects.compose)
-    ksp(projects.composeProcessor)
+    implementation(projects.navstateComposeAnnotations)
+    implementation(projects.navstateCompose)
+    ksp(projects.navstateComposeProcessor)
 }

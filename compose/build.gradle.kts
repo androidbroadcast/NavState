@@ -6,7 +6,11 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
+    id("dev.androidbroadcast.navstate.mavenPublish")
 }
+
+group = "dev.androidbroadcast.navstate"
+version = "0.1"
 
 kotlin {
     explicitApi = ExplicitApiMode.Strict
@@ -31,6 +35,9 @@ kotlin {
         iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
+
+        macosX64(),
+        macosArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "NavStateCompose"
@@ -43,7 +50,7 @@ kotlin {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                api(projects.core)
+                api(projects.navstateCore)
                 implementation(libs.essenty.backhandler)
             }
         }
@@ -80,5 +87,12 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.kotlinCompilerExtensionVersion.get()
+    }
+}
+
+publishing {
+    publications.getByName<MavenPublication>("maven") {
+        version = "0.1"
+        description = "Navigation library based on state"
     }
 }

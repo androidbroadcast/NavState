@@ -51,6 +51,9 @@ kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlin
 detekt-plugin-kode-composeRules = { module = "ru.kode:detekt-rules-compose", version.ref = "detekt-plugin-kode-composeRules" }
 detekt-plugin-nlopez-composeRules = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-plugin-nlopez-composeRules" }
 
+gradlePlugins-android = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+gradlePlugins-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }

@@ -14,6 +14,8 @@ plugins {
 }
 
 allprojects {
+    group = "dev.androidbroadcast.navstate"
+
     plugins.whenPluginAdded {
         if (plugins.hasPlugin(libs.plugins.compose.compiler.get().pluginId)
             && plugins.hasPlugin(libs.plugins.detekt.get().pluginId)

@@ -1,6 +1,3 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,10 +5,15 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
+    id("dev.androidbroadcast.navstate.mavenPublish")
 }
+
+group = "dev.androidbroadcast.navstate"
+version = "0.1"
 
 kotlin {
     explicitApi = ExplicitApiMode.Strict
+
     jvm()
 
     androidTarget {
@@ -30,16 +32,13 @@ kotlin {
     listOf(
         iosX64(),
         iosArm64(),
-
         iosSimulatorArm64(),
         tvosArm64(),
         tvosX64(),
         tvosSimulatorArm64(),
-
         watchosArm32(),
         watchosArm64(),
         watchosX64(),
-
         macosX64(),
         macosArm64(),
     ).forEach {
@@ -73,19 +72,21 @@ kotlin {
 
 android {
     namespace = "dev.androidbroadcast.navstate.core"
-    compileSdk =
-        libs.versions.android.compileSdk
-            .get()
-            .toInt()
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+
     defaultConfig {
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+publishing {
+    publications.getByName<MavenPublication>("maven") {
+        version = "0.1"
+        description = "Navigation library based on state"
     }
 }
