@@ -27,11 +27,21 @@ kotlin {
         }
     }
 
-
     listOf(
         iosX64(),
         iosArm64(),
+
         iosSimulatorArm64(),
+        tvosArm64(),
+        tvosX64(),
+        tvosSimulatorArm64(),
+
+        watchosArm32(),
+        watchosArm64(),
+        watchosX64(),
+
+        macosX64(),
+        macosArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "NavStateComposeCore"
@@ -40,6 +50,9 @@ kotlin {
     }
 
     linuxX64()
+    linuxArm64()
+
+    mingwX64()
 
     sourceSets {
         val commonMain by getting {
@@ -60,9 +73,15 @@ kotlin {
 
 android {
     namespace = "dev.androidbroadcast.navstate.core"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
 
     compileOptions {
