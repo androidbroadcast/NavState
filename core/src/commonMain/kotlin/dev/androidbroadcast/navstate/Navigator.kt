@@ -1,12 +1,15 @@
 package dev.androidbroadcast.navstate
 
+import dev.androidbroadcast.navstate.deeplink.DeepLinkProcessor
+import dev.androidbroadcast.navstate.deeplink.SimpleDeepLinkProcessor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 public class Navigator(
     initialState: NavState,
-) {
+) : DeepLinkProcessor by SimpleDeepLinkProcessor() {
+
 
     public val commandsQueue: NavCommandsQueue = DefaultNavCommandsQueue(this)
 
