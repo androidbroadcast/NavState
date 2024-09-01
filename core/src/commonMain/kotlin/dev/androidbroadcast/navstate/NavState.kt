@@ -38,7 +38,12 @@ public fun NavState(
 }
 
 public fun NavState.then(stack: NavStack): NavState {
-    return copy(stacks = this.stacks + stack)
+    return copy(
+        stacks = buildSet {
+            addAll(this@then.stacks)
+            add(stack)
+        },
+    )
 }
 
 public inline fun NavState.buildNavState(

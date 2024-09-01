@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 public data class NavStack(
     val id: String,
     val entries: List<NavEntry>
-)
+): Iterable<NavEntry> by entries.reversed()
 
 public fun NavStack(
     id: String,

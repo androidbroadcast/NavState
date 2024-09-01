@@ -3,27 +3,24 @@ package dev.androidbroadcast.navstate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 
-internal interface NavCommandsQueue {
+public interface NavCommandsQueue {
 
-    val isCancelled: Boolean
+    public val isCancelled: Boolean
 
-    fun stop()
-
-    fun enqueue(command: NavCommand)
+    public fun enqueue(command: NavCommand)
 }
 
 internal class DefaultNavCommandsQueue(
     private val navigator: Navigator,
     private val commandsScope: CoroutineScope =
     // Dispatchers.Main is right. Don't replace with Dispatchers.Main.immediate
-        CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 ) : NavCommandsQueue {
 
     private val queue = MutableSharedFlow<NavCommand>(extraBufferCapacity = Int.MAX_VALUE)
@@ -36,10 +33,6 @@ internal class DefaultNavCommandsQueue(
 
     override val isCancelled: Boolean
         get() = !commandsScope.isActive
-
-    override fun stop() {
-        commandsScope.cancel()
-    }
 
     override fun enqueue(command: NavCommand) {
         queue.tryEmit(command)
