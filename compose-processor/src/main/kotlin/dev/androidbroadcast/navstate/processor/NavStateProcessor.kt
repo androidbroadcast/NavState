@@ -18,11 +18,12 @@ import com.squareup.kotlinpoet.ksp.writeTo
 
 internal class NavStateProcessor(
     val codeGenerator: CodeGenerator,
-    val logger: KSPLogger,
+    @Suppress("unused") val logger: KSPLogger,
     val packageName: String,
     val fileName: String,
     val funcName: String,
 ) : SymbolProcessor {
+
     private val navDestVisitor: NavDestVisitor = NavDestVisitor()
 
     private val functions = mutableListOf<KSFunctionDeclaration>()
@@ -61,32 +62,37 @@ internal class NavStateProcessor(
         val destArgument = ksAnnotation.arguments[0].value
         check(destArgument is KSType)
         val destType = destArgument.declaration.qualifiedName!!
-        addImport(destType)
-        addImport(funQualifiedName)
+        addImports(destType, funQualifiedName)
 
         val caseCodeBlock: CodeBlock =
-            if (function.parameters.isEmpty()) {
-                CodeBlock.of("${funQualifiedName.getShortName()}()")
-            } else {
-                with(CodeBlock.Builder()) {
-                    add("${funQualifiedName.getShortName()}(")
-                    var multipleParam = false
-                    function.parameters.onEach { parameter ->
-                        if (multipleParam) add(", ")
-                        when (parameter.type.resolve().declaration.qualifiedName!!.asString()) {
-                            COMPOSE_MODIFIER_QUALIFIED_NAME -> add("modifier")
-                            destType.asString() -> add("$DEST_PARAM_NAME")
-                            else -> error("Parameter type ${parameter.name!!.asString()} isn't supported")
-                        }
-                        multipleParam = true
-                    }
-                    add(")")
-                }.build()
-            }
+            destCaseCode(function, funQualifiedName, destType)
         addCase(ClassName.bestGuess(checkNotNull(destTypeArg.value.toString())), caseCodeBlock)
     }
 
+    private fun destCaseCode(
+        function: KSFunctionDeclaration,
+        funQualifiedName: KSName,
+        destType: KSName
+    ): CodeBlock {
+        if (function.parameters.isEmpty()) {
+            return CodeBlock.of("${funQualifiedName.getShortName()}()")
+        } else {
+            return with(CodeBlock.Builder()) {
+                add("${funQualifiedName.getShortName()}(")
+                function.parameters.onEach { parameter ->
+                    when (parameter.type.resolve().declaration.qualifiedName!!.asString()) {
+                        COMPOSE_MODIFIER_QUALIFIED_NAME -> {}
+                        destType.asString() -> add(DEST_PARAM_NAME)
+                        else -> error("Parameter type ${parameter.name!!.asString()} isn't supported")
+                    }
+                }
+                add(")")
+            }.build()
+        }
+    }
+
     private inner class NavDestVisitor : KSVisitorVoid() {
+
         override fun visitFile(
             file: KSFile,
             data: Unit,
@@ -109,6 +115,7 @@ internal class NavStateProcessor(
     }
 
     private companion object {
+
         private const val DEST_PARAM_NAME = "dest"
         private const val COMPOSE_MODIFIER_QUALIFIED_NAME = "androidx.compose.ui.Modifier"
     }

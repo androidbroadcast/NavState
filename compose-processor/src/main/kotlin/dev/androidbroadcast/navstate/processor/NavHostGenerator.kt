@@ -5,19 +5,17 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 
 private val GeneratedAnnotation by lazy { ClassName.bestGuess("javax.annotation.processing.Generated") }
 private val ComposableAnnotation by lazy { ClassName.bestGuess("androidx.compose.runtime.Composable") }
 private val NavDest: ClassName by lazy { ClassName.bestGuess("dev.androidbroadcast.navstate.NavDest") }
+private val Navigator: ClassName by lazy { ClassName.bestGuess("dev.androidbroadcast.navstate.Navigator") }
 private val NavHost by lazy { ClassName.bestGuess("dev.androidbroadcast.navstate.NavHost") }
 private val NavState by lazy { ClassName.bestGuess("dev.androidbroadcast.navstate.NavState") }
-private val Modifier by lazy { ClassName.bestGuess("androidx.compose.ui.Modifier") }
 
 private const val DestParamName = "dest"
-private const val DestIteratorFunName = "DestChooser"
 
 internal fun generateNavHost(
     fileName: String,
@@ -32,6 +30,7 @@ internal fun generateNavHost(
 }
 
 internal class NavHostGenerator {
+
     private val whenCodeBlock = CodeBlock.builder()
 
     private val imports = mutableListOf<KSName>()
@@ -47,7 +46,7 @@ internal class NavHostGenerator {
         whenCodeBlock.addStatement("is ${type.simpleName} -> $call")
     }
 
-    fun addImport(qualifiedName: KSName) {
+    fun addImports(vararg qualifiedName: KSName) {
         imports += qualifiedName
     }
 
@@ -56,33 +55,9 @@ internal class NavHostGenerator {
         fileName: String,
         funcName: String,
     ): FileSpec {
-        val whenCodeBlock = whenCodeBlock
-            .addStatement("else -> error(\"Unknown destination \$$DestParamName\")")
-            .endControlFlow().build()
-
-        val whenIsFun =
-            FunSpec
-                .builder(DestIteratorFunName)
-                .addAnnotation(GeneratedAnnotation)
-                .addAnnotation(ComposableAnnotation)
-                .addParameter(DestParamName, NavDest)
-                .addParameter(
-                    ParameterSpec
-                        .builder(
-                            name = "modifier",
-                            type = Modifier,
-                        ).defaultValue("Modifier")
-                        .build(),
-                ).addCode(whenCodeBlock)
-                .addModifiers(KModifier.PRIVATE)
-                .build()
-
-        val generatetNavHostFun = generateNavHostFun(funcName)
-
         return FileSpec
             .builder(packageName, fileName)
-            .addFunction(whenIsFun)
-            .addFunction(generatetNavHostFun)
+            .addFunction(generateNavHostFun(funcName))
             .addClassImport(NavState)
             .addClassImport(NavDest)
             .addClassImport(NavHost)
@@ -92,35 +67,60 @@ internal class NavHostGenerator {
     }
 
     private fun generateNavHostFun(funcName: String): FunSpec {
-        val initDestParam = "initialDestination"
+        val navigatorParam = "navigator"
         val onRootBackParam = "onRootBack"
-        val initialStackIdParam = "initialStackId"
+        val elseBranchParam = "orElse"
+
+        val whenCodeBlock = whenCodeBlock
+            .addStatement("else -> orElse(dest)")
+            .endControlFlow().build()
+
+        val body = CodeBlock.builder()
+            .beginControlFlow("NavHost(navigator, onRootBack)")
+            .addStatement("val dest = rememberNavTopEntry().destination")
+            .add(whenCodeBlock)
+            .endControlFlow()
+            .build()
+        /**
+         * @Generated
+         * @Composable
+         * public fun GeneratedNavHost(
+         *     navigator: Navigator,
+         *     onRootBack: () -> Unit,
+         *     orElse: (NavDest) -> Unit,
+         * ) {
+         *     NavHost(navigator, onRootBack) {
+         *         val dest = rememberNavTopEntry().destination
+         *         when (dest) {
+         *             is <DEST> -> <COMPOSABLE DEST>
+         *                 ...
+         *             else -> orElse(dest)
+         *         }
+         *     }
+         * }
+         */
         return FunSpec
             .builder(funcName)
             .addAnnotation(GeneratedAnnotation)
             .addAnnotation(ComposableAnnotation)
-            .addParameter(initDestParam, NavDest)
+            .addParameter(navigatorParam, Navigator)
             .addParameter(
                 onRootBackParam,
                 LambdaTypeName.get(returnType = ClassName.bestGuess("kotlin.Unit")),
-            ).addParameter(
-                ParameterSpec
-                    .builder(initialStackIdParam, ClassName.bestGuess("kotlin.String"))
-                    .defaultValue("NavState.DefaultStackId")
+            )
+            .addParameter(
+                ParameterSpec.builder(
+                    elseBranchParam,
+                    LambdaTypeName.get(
+                        parameters = listOf(ParameterSpec.Companion.unnamed(NavDest)),
+                        returnType = ClassName.bestGuess("kotlin.Unit"),
+                    ),
+                )
+                    .defaultValue("{ error(\"Unknown destination \$it\") }")
                     .build(),
-            ).addCode(
-                CodeBlock.of(
-                    """
-                    ${NavHost.simpleName}(
-                        $initDestParam,
-                        $onRootBackParam,
-                        $initialStackIdParam
-                    ) {
-                        $DestIteratorFunName(rememberNavTopEntry().destination)
-                    }
-                    """.trimIndent(),
-                ),
-            ).build()
+            )
+            .addCode(body)
+            .build()
     }
 }
 

@@ -52,26 +52,24 @@ public fun NavHost(
 internal expect fun platformBackDispatcher(): BackDispatcher
 
 @Composable
-@NonRestartableComposable
 public fun NavHost(
     initialState: NavState,
+    onRootBack: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(
-        LocalNavigator provides Navigator(initialState),
-        content,
+    NavHost(
+        navigator = Navigator(initialState),
+        onRootBack = onRootBack,
+        content = content,
     )
 }
 
 @Composable
-@NonRestartableComposable
 public fun NavHost(
-    initialState: NavState,
-    onRootBack: () -> Unit,
+    navigator: Navigator,
+    onRootBack: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    val navigator = Navigator(initialState)
-
     BackHandler(
         backHandler = platformBackDispatcher(),
         onBack = {
