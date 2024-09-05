@@ -37,7 +37,12 @@ public class Navigator(
 
     public fun interface DeepLinkHandler {
 
-        public fun handle(navigator: Navigator, uri: String, result: UriMatcher.MatchResult): Boolean {
+        public fun handle(navigator: Navigator, uri: String, result: UriMatcher.MatchResult): Boolean
+    }
+
+    public interface StateTransformDeepLinkHandler : DeepLinkHandler {
+
+        public override fun handle(navigator: Navigator, uri: String, result: UriMatcher.MatchResult): Boolean {
             navigator.replaceState { curState -> transformState(curState) }
             return true
         }
