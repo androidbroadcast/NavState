@@ -16,7 +16,7 @@ public fun interface NavCommand {
                     buildList {
                         add(this@NavCommand)
                         addAll(command.commands)
-                    },
+                    }
                 )
 
             else -> NavCommandList(listOf(this, command))
@@ -50,10 +50,8 @@ private class NavCommandList(
 
 public operator fun NavCommand.plus(command: NavCommand): NavCommand = then(command)
 
-public fun NavCommand(vararg commands: NavCommand): NavCommand {
-    return when (commands.size) {
-        0 -> NavCommand
-        1 -> commands[0]
-        else -> NavCommandList(commands.toList())
-    }
+public fun NavCommand(vararg commands: NavCommand): NavCommand = when (commands.size) {
+    0 -> NavCommand
+    1 -> commands[0]
+    else -> NavCommandList(commands.toList())
 }

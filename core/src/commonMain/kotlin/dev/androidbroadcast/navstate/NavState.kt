@@ -75,8 +75,10 @@ internal inline fun buildNavStateInternal(
     builder: NavStateBuilder,
     body: NavStateBuilder.() -> Unit
 ): NavState = with(builder.apply(body)) {
-    val activeStack = checkNotNull(activeStack) { "Active stack isn't set" }
-    NavState(stacks.values.toSet(), activeStack)
+    NavState(
+        stacks.values.toSet(),
+        activeStack = checkNotNull(activeStack) { "Active stack isn't set" },
+    )
 }
 
 public class NavStateBuilder @PublishedApi internal constructor(
@@ -114,3 +116,5 @@ public class NavStateBuilder @PublishedApi internal constructor(
         activeStackId = stackId
     }
 }
+
+public fun NavState.transform(command: NavCommand): NavState = command.execute(this)

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 public data class NavStack(
     val id: String,
     val entries: List<NavEntry>
-): Iterable<NavEntry> by entries.reversed()
+) : Iterable<NavEntry> by entries.reversed()
 
 public fun NavStack(
     id: String,
@@ -42,10 +42,11 @@ public class NavStackBuilder @PublishedApi internal constructor(
     }
 }
 
-public fun buildNavStack(
+public inline fun buildNavStack(
     id: String,
     body: NavStackBuilder.() -> Unit
 ): NavStack {
-    val builder = NavStackBuilder(id, entries = emptyList()).apply(body)
-    return NavStack(builder.id, builder.entries.toList())
+    return NavStackBuilder(id, entries = emptyList())
+        .apply(body)
+        .let { builder -> NavStack(builder.id, builder.entries.toList()) }
 }
