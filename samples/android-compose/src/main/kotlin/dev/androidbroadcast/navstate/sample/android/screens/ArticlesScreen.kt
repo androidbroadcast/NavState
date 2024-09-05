@@ -11,12 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.androidbroadcast.navstate.LocalNavigator
-import dev.androidbroadcast.navstate.NavCommand
 import dev.androidbroadcast.navstate.annotations.NavDest
-import dev.androidbroadcast.navstate.enqueue
-import dev.androidbroadcast.navstate.forward
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
-import dev.androidbroadcast.navstate.sample.android.data.ArticleId
 
 @Composable
 @NavDest(BroadcastNavGraph.Articles::class)
@@ -27,9 +23,7 @@ fun ArticlesScreen() {
         repeat(3) { itemId ->
             Button(
                 onClick = {
-                    val articleId = ArticleId((itemId + 1).toString())
-                    val dest = BroadcastNavGraph.Article(articleId)
-                    navigator.enqueue(NavCommand.forward(dest))
+                    navigator.open("broadcast://androidbroadcast.dev/article/$itemId")
                 },
             ) {
                 Text(

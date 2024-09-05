@@ -5,13 +5,19 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.NavEntry
 import dev.androidbroadcast.navstate.NavHost
 import dev.androidbroadcast.navstate.NavState
 import dev.androidbroadcast.navstate.Navigator
+import dev.androidbroadcast.navstate.buildNavStack
+import dev.androidbroadcast.navstate.buildNavState
+import dev.androidbroadcast.navstate.deeplink.SimpleUriPattern
 import dev.androidbroadcast.navstate.enqueue
 import dev.androidbroadcast.navstate.popTop
 import dev.androidbroadcast.navstate.rememberNavTopEntry
+import dev.androidbroadcast.navstate.replaceState
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
+import dev.androidbroadcast.navstate.sample.android.data.ArticleId
 import dev.androidbroadcast.navstate.sample.android.ui.theme.BroadcastTheme
 
 @Composable
@@ -43,5 +49,60 @@ fun RootScreen(
 }
 
 private fun setupNavigator(): Navigator {
-    return Navigator(NavState(BroadcastNavGraph.root))
+    return Navigator(NavState(BroadcastNavGraph.root)).apply {
+        registerDeepLink(
+            matcher = SimpleUriPattern.any(
+                schemeRegex = "(https?|broadcast)",
+                hostRegex = Regex.escape("androidbroadcast.dev"),
+                pathRegex = "article/{articleId}",
+            ),
+        ) { navigator, _, result ->
+            val articleId = result.pathParams.getValue("articleId")
+            handleArticleDeepLink(navigator, articleId)
+            return@registerDeepLink true //
+        }
+
+        registerDeepLink(
+            matcher = SimpleUriPattern.any(
+                schemeRegex = "(https?|broadcast)",
+                hostRegex = Regex.escape("androidbroadcast.dev"),
+                pathRegex = "author",
+            ),
+        ) { navigator, _, _ ->
+            handleAboutAuthorDeepLink(navigator)
+            return@registerDeepLink true //
+        }
+    }
+}
+
+private fun Navigator.handleAboutAuthorDeepLink(navigator: Navigator) {
+    navigator.replaceState {
+        currentState.buildNavState {
+            add(
+                buildNavStack(NavState.DefaultStackId) {
+                    add(NavEntry(BroadcastNavGraph.root))
+                    add(NavEntry(BroadcastNavGraph.AboutAuthor()))
+                },
+                makeActive = true,
+            )
+        }
+    }
+}
+
+private fun Navigator.handleArticleDeepLink(
+    navigator: Navigator,
+    articleId: String
+) {
+    navigator.replaceState {
+        currentState.buildNavState {
+            add(
+                buildNavStack(NavState.DefaultStackId) {
+                    add(NavEntry(BroadcastNavGraph.root))
+                    add(NavEntry(BroadcastNavGraph.Articles()))
+                    add(NavEntry(BroadcastNavGraph.Article(ArticleId(articleId))))
+                },
+                makeActive = true,
+            )
+        }
+    }
 }
