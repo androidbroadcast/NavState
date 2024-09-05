@@ -1,7 +1,7 @@
 plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
-    id("dev.androidbroadcast.navstate.mavenPublish")
+//    id("dev.androidbroadcast.navstate.mavenPublish")
 }
 
 group = "dev.androidbroadcast.navstate"
@@ -24,9 +24,9 @@ dependencies {
     testImplementation(projects.navstateComposeAnnotations)
 }
 
-publishing {
-    publications.getByName<MavenPublication>("maven") {
-        version = "0.1"
-        from(components["java"])
-    }
-}
+//publishing {
+//    publications.getByName<MavenPublication>("maven") {
+//        version = "0.1"
+//        from(components["java"])
+//    }
+//}

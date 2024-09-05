@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
-    id("dev.androidbroadcast.navstate.mavenPublish")
+//    id("dev.androidbroadcast.navstate.mavenPublish")
 }
 
 group = "dev.androidbroadcast.navstate"
@@ -90,9 +90,9 @@ android {
     }
 }
 
-publishing {
-    publications.getByName<MavenPublication>("maven") {
-        version = "0.1"
-        description = "Navigation library based on state"
-    }
-}
+//publishing {
+//    publications.getByName<MavenPublication>("maven") {
+//        version = "0.1"
+//        description = "Navigation library based on state"
+//    }
+//}

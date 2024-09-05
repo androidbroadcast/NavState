@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -47,11 +46,6 @@ android {
     }
 }
 
-ksp {
-    arg("NavStateGenerator.package", "dev.androidbroadcast.navstate.sample.android")
-    arg("NavStateGenerator.functionName", "GeneratedNavHost")
-}
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -68,5 +62,4 @@ dependencies {
 
     implementation(projects.navstateComposeAnnotations)
     implementation(projects.navstateCompose)
-    ksp(projects.navstateComposeProcessor)
 }
