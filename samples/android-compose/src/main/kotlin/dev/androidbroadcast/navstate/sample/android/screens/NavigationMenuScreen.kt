@@ -16,9 +16,9 @@ import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.enqueue
 import dev.androidbroadcast.navstate.forward
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
+import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph.NavMenu
 
-@Composable
-@NavDest(BroadcastNavGraph.NavMenu::class)
+@[Composable NavDest(NavMenu::class)]
 @Preview
 fun NavigationMenuScreen() {
     val navigator = LocalNavigator.current

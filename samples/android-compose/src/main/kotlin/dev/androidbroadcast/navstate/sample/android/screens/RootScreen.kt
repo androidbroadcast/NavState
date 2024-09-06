@@ -9,6 +9,7 @@ import dev.androidbroadcast.navstate.NavEntry
 import dev.androidbroadcast.navstate.NavHost
 import dev.androidbroadcast.navstate.NavState
 import dev.androidbroadcast.navstate.Navigator
+import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.buildNavStack
 import dev.androidbroadcast.navstate.buildNavState
 import dev.androidbroadcast.navstate.deeplink.SimpleUriPattern
@@ -17,6 +18,7 @@ import dev.androidbroadcast.navstate.popTop
 import dev.androidbroadcast.navstate.rememberNavTopEntry
 import dev.androidbroadcast.navstate.replaceState
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
+import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph.WebPageDest
 import dev.androidbroadcast.navstate.sample.android.data.ArticleId
 import dev.androidbroadcast.navstate.sample.android.ui.theme.BroadcastTheme
 
@@ -36,7 +38,7 @@ fun RootScreen(
                     is BroadcastNavGraph.BroadcastResources -> BroadcastResourcesScreen()
                     is BroadcastNavGraph.AboutAuthor -> AboutAuthorScreen()
                     // Открытие ссылки вне приложения, делегируем приложению
-                    is BroadcastNavGraph.WebPageDest -> {
+                    is WebPageDest -> {
                         openWebPage(dest.url)
                         navigator.enqueue(NavCommand.popTop())
                     }
@@ -46,6 +48,11 @@ fun RootScreen(
             }
         }
     }
+}
+
+@NavDest(WebPageDest::class)
+fun handleWebPageDest(navigator: Navigator) {
+    navigator.enqueue(NavCommand.popTop())
 }
 
 private fun setupNavigator(): Navigator {

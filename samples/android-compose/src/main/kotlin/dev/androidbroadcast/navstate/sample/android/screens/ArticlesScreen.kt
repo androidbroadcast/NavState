@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import dev.androidbroadcast.navstate.LocalNavigator
 import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
+import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph.Articles
 
-@Composable
-@NavDest(BroadcastNavGraph.Articles::class)
+@[Composable NavDest(Articles::class)]
 fun ArticlesScreen() {
     val scrollState = rememberScrollState()
     Column(Modifier.scrollable(scrollState, Orientation.Vertical)) {

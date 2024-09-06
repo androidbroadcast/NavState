@@ -4,9 +4,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
+import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph.AboutAuthor
 
-@Composable
-@NavDest(BroadcastNavGraph.AboutAuthor::class)
+@[Composable NavDest(AboutAuthor::class)]
 fun AboutAuthorScreen() {
     Text("About")
 }
