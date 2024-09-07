@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.NavDest
 import dev.androidbroadcast.navstate.NavEntry
 import dev.androidbroadcast.navstate.NavHost
 import dev.androidbroadcast.navstate.NavState
 import dev.androidbroadcast.navstate.Navigator
-import dev.androidbroadcast.navstate.annotations.NavDest
 import dev.androidbroadcast.navstate.buildNavStack
 import dev.androidbroadcast.navstate.buildNavState
 import dev.androidbroadcast.navstate.deeplink.SimpleUriPattern
@@ -32,27 +32,29 @@ fun RootScreen(
         Box(Modifier.fillMaxHeight()) {
             NavHost(navigator, onRootBack) {
                 when (val dest = rememberNavTopEntry().destination) {
-                    is BroadcastNavGraph.NavMenu -> NavigationMenuScreen()
-                    is BroadcastNavGraph.Article -> ArticleItemScreen(dest.articleId)
-                    is BroadcastNavGraph.Articles -> ArticlesScreen()
-                    is BroadcastNavGraph.BroadcastResources -> BroadcastResourcesScreen()
-                    is BroadcastNavGraph.AboutAuthor -> AboutAuthorScreen()
                     // Открытие ссылки вне приложения, делегируем приложению
                     is WebPageDest -> {
                         openWebPage(dest.url)
                         navigator.enqueue(NavCommand.popTop())
                     }
 
-                    else -> error("Unknown destination $dest")
+                    else -> ScreenForDestination(dest)
                 }
             }
         }
     }
 }
 
-@NavDest(WebPageDest::class)
-fun handleWebPageDest(navigator: Navigator) {
-    navigator.enqueue(NavCommand.popTop())
+@Composable
+private fun ScreenForDestination(dest: NavDest) {
+    when (dest) {
+        is BroadcastNavGraph.NavMenu -> NavigationMenuScreen()
+        is BroadcastNavGraph.Article -> ArticleItemScreen(dest.articleId)
+        is BroadcastNavGraph.Articles -> ArticlesScreen()
+        is BroadcastNavGraph.BroadcastResources -> BroadcastResourcesScreen()
+        is BroadcastNavGraph.AboutAuthor -> AboutAuthorScreen()
+        else -> error("Unknown destination $dest")
+    }
 }
 
 private fun setupNavigator(): Navigator {
@@ -64,7 +66,7 @@ private fun setupNavigator(): Navigator {
                 pathRegex = "article/{articleId}",
             ),
         ) { navigator, _, result ->
-            val articleId = result.pathParams.getValue("articleId")
+            val articleId = result.params.getValue("articleId")
             handleArticleDeepLink(navigator, articleId)
             return@registerDeepLink true //
         }

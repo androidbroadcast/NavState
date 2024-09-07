@@ -34,7 +34,7 @@ public data class SimpleUriPattern(
             path = matchResult.findGroup(GROUP_PATH),
             host = matchResult.findGroup(GROUP_HOST),
             scheme = matchResult.findGroup(GROUP_SCHEME),
-            pathParams = pathParams.associateWith { matchResult.findGroup(it) },
+            params = pathParams.associateWith { matchResult.findGroup(it) },
         )
     }
 
@@ -56,7 +56,7 @@ public data class SimpleUriPattern(
         override val path: String,
         override val host: String,
         override val scheme: String,
-        override val pathParams: Map<String, String>,
+        override val params: Map<String, String>,
     ) : UriMatcher.MatchResult
 }
 

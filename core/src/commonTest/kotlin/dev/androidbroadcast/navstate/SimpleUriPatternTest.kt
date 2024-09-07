@@ -39,7 +39,7 @@ class SimpleUriPatternTest {
             scheme = "https",
             host = "google.com",
             path = "/path/1",
-            pathParams = mapOf("id" to "1"),
+            params = mapOf("id" to "1"),
         )
         assertEquals(expected, result)
     }
@@ -58,7 +58,7 @@ class SimpleUriPatternTest {
             scheme = "navstate",
             host = "entry",
             path = "/page/51/line/143",
-            pathParams = mapOf("pageNumber" to "51", "lineNumber" to "143"),
+            params = mapOf("pageNumber" to "51", "lineNumber" to "143"),
         )
 
         val result = matcher.match(uri)
