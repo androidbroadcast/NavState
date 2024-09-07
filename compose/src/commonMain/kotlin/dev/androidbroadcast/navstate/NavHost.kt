@@ -34,6 +34,15 @@ public fun rememberNavTopEntry(): NavEntry {
 }
 
 @Composable
+public fun rememberNavTopEntry(count: Int): List<NavEntry> {
+    require(count > 0) { "count must be >= 1" }
+    val navState = rememberNavState()
+    val entries = navState.activeStack.entries
+    val startIndex = (entries.size - count).coerceAtLeast(0)
+    return entries.subList(startIndex, entries.size)
+}
+
+@Composable
 @NonRestartableComposable
 public fun NavHost(
     initialDestination: NavDest,
