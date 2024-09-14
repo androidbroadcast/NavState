@@ -21,14 +21,24 @@ public interface NavCommandsQueue {
 internal class DefaultNavCommandsQueue(
     private val navigator: Navigator,
     private val commandsScope: CoroutineScope =
-        // Dispatchers.Main is right. Don't replace with Dispatchers.Main.immediate
+    // Dispatchers.Main is right. Don't replace with Dispatchers.Main.immediate
         CoroutineScope(SupervisorJob() + Dispatchers.Main)
 ) : NavCommandsQueue {
 
     private val queue = MutableSharedFlow<NavCommand>(extraBufferCapacity = Int.MAX_VALUE)
 
     init {
-        queue.map { it.execute(navigator.currentState) }
+        queue
+            .map {
+                val currentState = navigator.currentState
+                currentState to it.execute(currentState)
+            }
+            .map { (curState, state) ->
+                navigator.interceptors
+                    .fold(curState to state) { (preState, postState), interceptor ->
+                        postState to interceptor.intercept(navigator, preState, postState)
+                    }.second
+            }
             .onEach(navigator::updateState)
             .launchIn(commandsScope)
     }

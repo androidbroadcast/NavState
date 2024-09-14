@@ -9,6 +9,7 @@ public class Navigator(
     initialState: NavState,
 ) {
 
+    internal val interceptors = mutableListOf<Interceptor>()
     private val deepLinks = mutableMapOf<UriMatcher, DeepLinkHandler>()
     public val commandsQueue: NavCommandsQueue = DefaultNavCommandsQueue(this)
 
@@ -48,6 +49,11 @@ public class Navigator(
         }
 
         public fun transformState(curState: NavState): NavState
+    }
+
+    public fun interface Interceptor {
+
+        public fun intercept(navigator: Navigator, curState: NavState, newState: NavState): NavState
     }
 }
 
