@@ -1,74 +1,12 @@
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
-//    id("dev.androidbroadcast.navstate.mavenPublish")
+    `maven-publish`
 }
 
 group = "dev.androidbroadcast.navstate"
 version = "0.1"
-
-kotlin {
-    explicitApi = ExplicitApiMode.Strict
-
-    jvm()
-
-    androidTarget {
-        publishLibraryVariants("release")
-
-        compilations.all {
-            compileTaskProvider {
-                compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
-                    freeCompilerArgs.add("-Xjdk-release=${JavaVersion.VERSION_17}")
-                }
-            }
-        }
-    }
-
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64(),
-        tvosArm64(),
-        tvosX64(),
-        tvosSimulatorArm64(),
-        watchosArm32(),
-        watchosArm64(),
-        watchosX64(),
-        macosX64(),
-        macosArm64(),
-    ).forEach {
-        it.binaries.framework {
-            baseName = "NavStateComposeCore"
-            isStatic = true
-        }
-    }
-
-    linuxX64()
-    linuxArm64()
-
-    mingwX64()
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.core)
-            }
-        }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlin.test)
-                implementation(libs.kotlinx.coroutines.test)
-            }
-        }
-    }
-}
 
 android {
     namespace = "dev.androidbroadcast.navstate.core"
@@ -82,11 +20,64 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    buildTypes {
+        debug {}
+        release {}
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar() // Required
+        }
+    }
 }
 
-//publishing {
-//    publications.getByName<MavenPublication>("maven") {
-//        version = "0.1"
-//        description = "Navigation library based on state"
-//    }
-//}
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            pom {
+                name = "NavState"
+                description = "KMP Navigation State library"
+
+                ciManagement {
+                    system = "GitHub Actions"
+                    url = "https://github.com/androidbroadcast/NavState/actions"
+                }
+
+                issueManagement {
+                    system = "GitHub"
+                    url = "https://github.com/androidbroadcast/navstate/issues"
+                }
+
+                developers {
+                    developer {
+                        name = "Kirill Rozov"
+                        email = "kirill@androidbroadcast.dev"
+                    }
+                }
+            }
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+
+        repositories {
+            mavenCentral()
+            mavenLocal()
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/androidbroadcast/navstate")
+                credentials {
+                    username = System.getenv("GITHUB_USENAME")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
-//    id("dev.androidbroadcast.navstate.mavenPublish")
+    id("dev.androidbroadcast.navstate.mavenPublish")
 }
 
 group = "dev.androidbroadcast.navstate"
