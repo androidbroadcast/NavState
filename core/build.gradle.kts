@@ -1,7 +1,11 @@
+import org.jreleaser.model.Active
+
 plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.jreleaser)
+    signing
     `maven-publish`
 }
 
@@ -70,12 +74,52 @@ publishing {
         repositories {
             mavenCentral()
             mavenLocal()
+            maven(url = uri(project.layout.buildDirectory.file("maven-repo"))) {
+                name = "BuildDir"
+            }
             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/androidbroadcast/navstate")
                 credentials {
                     username = System.getenv("GITHUB_USENAME")
                     password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}
+
+jreleaser {
+    release {
+        project {
+            inceptionYear = "2024"
+            author("@kirich1409")
+        }
+
+        github {
+            skipRelease = true
+            skipTag = true
+        }
+
+        signing {
+            active = Active.ALWAYS
+            armored = true
+            verify = true
+        }
+
+        deploy {
+            maven {
+                mavenCentral.create("sonatype") {
+                    active = Active.ALWAYS
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+                    setAuthorization("Basic")
+
+                    applyMavenCentralRules = false // Wait for fix: https://github.com/kordamp/pomchecker/issues/21
+                    sign = true
+                    checksums = true
+                    sourceJar = true
+                    javadocJar = true
                 }
             }
         }
