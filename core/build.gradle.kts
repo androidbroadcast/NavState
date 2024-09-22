@@ -2,10 +2,10 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-//    id("dev.androidbroadcast.navstate.mavenPublish")
+    alias(libs.plugins.mavenPublish.vanniktech)
 }
 
 group = "dev.androidbroadcast.navstate"
@@ -22,8 +22,8 @@ kotlin {
         compilations.all {
             compileTaskProvider {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
-                    freeCompilerArgs.add("-Xjdk-release=${JavaVersion.VERSION_17}")
+                    jvmTarget.set(JvmTarget.JVM_21)
+                    freeCompilerArgs.add("-Xjdk-release=${JavaVersion.VERSION_21}")
                 }
             }
         }
@@ -71,7 +71,7 @@ kotlin {
 }
 
 android {
-    namespace = "dev.androidbroadcast.navstate.core"
+    namespace = "io.github.androidbroadcast"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -84,9 +84,56 @@ android {
     }
 }
 
-//publishing {
-//    publications.getByName<MavenPublication>("maven") {
-//        version = "0.1"
-//        description = "Navigation library based on state"
-//    }
-//}
+publishing {
+    publications
+        .withType<MavenPublication>()
+        .configureEach {
+            groupId = "dev.androidbroadcast.navstate"
+
+            pom {
+                description = "Navigation library based on state"
+                url = "https://github.com/androidbroadcast/NavState"
+
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://github.com/androidbroadcast/NavState/blob/main/LICENSE"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = "kirich1409"
+                        name = "Kirill Rozov"
+                        email = "kirill@androidbroadcast.dev"
+                        organization = "Anroid Broadcast"
+                        organizationUrl = "https://github.com/androidbroadcast"
+                    }
+                }
+
+                organization {
+                    name = "Anroid Broadcast"
+                    url = "https://github.com/androidbroadcast"
+                }
+
+                scm {
+                    url = "https://github.com/androidbroadcast/NavState"
+                }
+
+                issueManagement {
+                    url = "https://github.com/androidbroadcast/NavState/issues"
+                }
+
+                ciManagement {
+                    url = "https://github.com/androidbroadcast/NavState/actions"
+                }
+            }
+        }
+
+    repositories {
+        maven(uri(rootProject.layout.buildDirectory.dir("maven-repo"))) {
+            name = "BuildDir"
+        }
+    }
+}
+
