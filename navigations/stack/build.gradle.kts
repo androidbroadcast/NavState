@@ -4,9 +4,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.compose)
-//    id("dev.androidbroadcast.navstate.mavenPublish")
+    alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 group = "dev.androidbroadcast.navstate"
@@ -30,49 +29,52 @@ kotlin {
         }
     }
 
-
     listOf(
         iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
-
+        tvosArm64(),
+        tvosX64(),
+        tvosSimulatorArm64(),
+        watchosArm32(),
+        watchosArm64(),
+        watchosX64(),
         macosX64(),
         macosArm64(),
     ).forEach {
         it.binaries.framework {
-            baseName = "NavStateCompose"
+            baseName = "NavStateComposeCore"
             isStatic = true
         }
     }
 
+    linuxX64()
+    linuxArm64()
+
+    mingwX64()
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                api(projects.navstateCore)
-                api(projects.navigations.navstateStack)
-                implementation(libs.essenty.backhandler)
+                implementation(projects.navstateCore)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
 
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
-            }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
     }
 }
 
 android {
-    namespace = "dev.androidbroadcast.navstate.compose"
+    namespace = "dev.androidbroadcast.navstate.core"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
@@ -81,15 +83,27 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    buildFeatures {
-        compose = true
-    }
 }
 
-//publishing {
-//    publications.getByName<MavenPublication>("maven") {
-//        version = "0.1"
-//        description = "Navigation library based on state"
-//    }
-//}
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri("file://${buildDir}/repo")
+        }
+    }
+}

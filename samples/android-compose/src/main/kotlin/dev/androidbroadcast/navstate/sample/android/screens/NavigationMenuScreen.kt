@@ -13,10 +13,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import dev.androidbroadcast.navstate.LocalNavigator
 import dev.androidbroadcast.navstate.NavCommand
 import dev.androidbroadcast.navstate.annotations.NavDest
-import dev.androidbroadcast.navstate.enqueue
-import dev.androidbroadcast.navstate.forward
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph
 import dev.androidbroadcast.navstate.sample.android.BroadcastNavGraph.NavMenu
+import dev.androidbroadcast.navstate.stack.forward
 
 @[Composable NavDest(NavMenu::class)]
 @Preview

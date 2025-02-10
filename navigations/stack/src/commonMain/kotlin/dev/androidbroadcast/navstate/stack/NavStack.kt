@@ -1,24 +1,38 @@
-package dev.androidbroadcast.navstate
+package dev.androidbroadcast.navstate.stack
 
+import dev.androidbroadcast.navstate.NavDest
+import dev.androidbroadcast.navstate.NavEntriesStructure
+import dev.androidbroadcast.navstate.NavEntry
+import dev.androidbroadcast.navstate.NavStructure
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class NavStack(
-    val id: String,
-    val entries: List<NavEntry>
-) : Iterable<NavEntry> by entries.reversed()
+    override val id: NavStructure.Id,
+    override val entries: List<NavEntry>,
+    override val parent: NavStructure? = null,
+) : NavEntriesStructure, Iterable<NavEntry> by entries.reversed() {
 
-public fun NavStack(
-    id: String,
-    entry: NavEntry,
-): NavStack {
-    return NavStack(id, listOf(entry))
+    init {
+        check(entries.isNotEmpty()) {
+            "NavStack must have at least one NavEntry"
+        }
+    }
 }
 
-public fun NavStack.then(entry: NavEntry): NavStack = copy(entries = entries + entry)
+public val NavStack.current: NavEntry
+    get() = entries.last()
+
+public fun NavStack(
+    id: NavStructure.Id,
+    entry: NavEntry,
+    parent: NavStructure? = null
+): NavStack {
+    return NavStack(id, listOf(entry), parent)
+}
 
 public class NavStackBuilder @PublishedApi internal constructor(
-    @PublishedApi internal val id: String,
+    @PublishedApi internal val id: NavStructure.Id,
     entries: List<NavEntry>,
 ) {
 
@@ -33,7 +47,7 @@ public class NavStackBuilder @PublishedApi internal constructor(
         this.entries += entries
     }
 
-    public fun addAll(entries: Collection<NavEntry>): NavStackBuilder = apply {
+    public fun addAll(entries: Iterable<NavEntry>): NavStackBuilder = apply {
         this.entries += entries
     }
 
@@ -43,7 +57,7 @@ public class NavStackBuilder @PublishedApi internal constructor(
 }
 
 public inline fun buildNavStack(
-    id: String,
+    id: NavStructure.Id,
     body: NavStackBuilder.() -> Unit
 ): NavStack {
     return NavStackBuilder(id, entries = emptyList())

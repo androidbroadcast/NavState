@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
-//    id("dev.androidbroadcast.navstate.mavenPublish")
+    id("maven-publish")
 }
 
 group = "dev.androidbroadcast.navstate"
@@ -84,9 +84,25 @@ android {
     }
 }
 
-//publishing {
-//    publications.getByName<MavenPublication>("maven") {
-//        version = "0.1"
-//        description = "Navigation library based on state"
-//    }
-//}
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri("file://${buildDir}/repo")
+        }
+    }
+}

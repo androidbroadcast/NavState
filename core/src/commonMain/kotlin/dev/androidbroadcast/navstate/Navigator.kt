@@ -4,13 +4,20 @@ import dev.androidbroadcast.navstate.deeplink.UriMatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 
 public class Navigator(
-    initialState: NavState,
+    initialState: NavState
 ) {
 
+    init {
+        validate(initialState)
+    }
+
     private val deepLinks = mutableMapOf<UriMatcher, DeepLinkHandler>()
-    public val commandsQueue: NavCommandsQueue = DefaultNavCommandsQueue(this)
 
     private val _stateFlow = MutableStateFlow(initialState)
 
@@ -35,6 +42,10 @@ public class Navigator(
         _stateFlow.value = state.also(::validate)
     }
 
+    public fun enqueue(command: NavCommand) {
+        updateState(command.transform(currentState))
+    }
+
     public fun interface DeepLinkHandler {
 
         public fun handle(navigator: Navigator, uri: String, result: UriMatcher.MatchResult): Boolean
@@ -51,14 +62,6 @@ public class Navigator(
     }
 }
 
-public fun Navigator.enqueue(command: NavCommand) {
-    commandsQueue.enqueue(command)
-}
-
-public suspend fun Navigator.execute(command: NavCommand) {
-    commandsQueue.await(command)
-}
-
 /**
  * Check [NavState] that it's valid and can be represented navigation state
  *
@@ -68,13 +71,8 @@ public suspend fun Navigator.execute(command: NavCommand) {
  * - Active stack must be in NavState stacks
  */
 private fun validate(navState: NavState) {
-    check(navState.stacks.isNotEmpty()) { "NavState must have at least 1 NavStack" }
-    check(navState.activeStack in navState.stacks) { "Active Stack isn't in stacks" }
-    navState.stacks.forEach { navStack ->
-        check(navStack.entries.isNotEmpty()) {
-            "NavStack must have at least 1 NavEntry"
-        }
-    }
+    check(navState.structures.isNotEmpty()) { "NavState must have at least 1 struct" }
+    check(navState.current in navState.structures) { "Active struct out of structs" }
 }
 
 public inline fun Navigator.replaceState(

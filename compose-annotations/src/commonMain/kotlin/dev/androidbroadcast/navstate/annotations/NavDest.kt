@@ -1,8 +1,6 @@
 package dev.androidbroadcast.navstate.annotations
 
 import dev.androidbroadcast.navstate.NavDest
-import dev.androidbroadcast.navstate.NavStack
-import dev.androidbroadcast.navstate.NavState
 import kotlin.reflect.KClass
 
 /**

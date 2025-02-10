@@ -44,5 +44,8 @@ project(":compose-annotations").name = "navstate-compose-annotations"
 
 include(":samples:android-compose")
 
-include(":compose-processor")
-project(":compose-processor").name = "navstate-compose-processor"
+//include(":compose-processor")
+//project(":compose-processor").name = "navstate-compose-processor"
+
+include(":navigations:stack")
+project(":navigations:stack").name = "navstate-stack"

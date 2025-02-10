@@ -7,24 +7,27 @@ public fun interface NavCommand {
      *
      * @return New navigation state
      */
-    public fun execute(state: NavState): NavState
+    public fun transform(state: NavState): NavState
 
+    /**
+     * Combine this [NavCommand] with another [NavCommand] into one [NavCommand].
+     */
     public fun then(command: NavCommand): NavCommand =
-        when {
-            command is NavCommandList ->
-                NavCommandList(
-                    buildList {
+        NavCommandList(
+            when {
+                command is NavCommandList ->
+                    buildList(1 + command.commands.size) {
                         add(this@NavCommand)
                         addAll(command.commands)
                     }
-                )
 
-            else -> NavCommandList(listOf(this, command))
-        }
+                else -> listOf(this, command)
+            }
+        )
 
     public companion object : NavCommand {
 
-        override fun execute(state: NavState): NavState = state
+        override fun transform(state: NavState): NavState = state
 
         override fun then(command: NavCommand): NavCommand = command
     }
@@ -34,15 +37,15 @@ private class NavCommandList(
     val commands: List<NavCommand>,
 ) : NavCommand {
 
-    override fun execute(state: NavState): NavState {
-        return commands.fold(state) { accState, command -> command.execute(accState) }
+    override fun transform(state: NavState): NavState {
+        return commands.fold(state) { accState, command -> command.transform(accState) }
     }
 
     override fun then(command: NavCommand): NavCommand {
         return NavCommandList(
-            commands = buildList {
-                addAll(commands)
-                if (command is NavCommandList) addAll(command.commands) else add(command)
+            when (command) {
+                is NavCommandList -> commands + command.commands
+                else -> commands + command
             },
         )
     }

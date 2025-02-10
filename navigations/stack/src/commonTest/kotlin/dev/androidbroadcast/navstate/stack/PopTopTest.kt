@@ -1,24 +1,19 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package dev.androidbroadcast.navstate
+package dev.androidbroadcast.navstate.stack
 
-import kotlinx.coroutines.Dispatchers
+import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.NavEntry
+import dev.androidbroadcast.navstate.NavStructure
+import dev.androidbroadcast.navstate.Navigator
+import dev.androidbroadcast.navstate.buildNavState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private const val NAV_STACK_DEFAULT = "default"
+private val NAV_STACK_DEFAULT = NavStructure.Id("default")
 
 class PopTopTest {
-
-    @BeforeTest
-    fun setUp() {
-        Dispatchers.setMain(Dispatchers.Unconfined)
-    }
 
     @Test
     fun `popTop works correctly`() {
@@ -29,9 +24,9 @@ class PopTopTest {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
                         add(TestNavDestinations.Details("testId"))
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true,
+                )
             }
 
         val navigator = Navigator(initialState)
@@ -43,9 +38,9 @@ class PopTopTest {
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -57,9 +52,9 @@ class PopTopTest {
                 add(
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(NavEntry(TestNavDestinations.Root))
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true,
+                )
             }
 
         val navigator = Navigator(initialState)
@@ -70,9 +65,9 @@ class PopTopTest {
                 add(
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(NavEntry(TestNavDestinations.Root))
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -86,7 +81,7 @@ class PopTopTest {
                         add(NavEntry(TestNavDestinations.Root))
                         add(NavEntry(TestNavDestinations.DataList))
                     },
-                    makeActive = true,
+                    setCurrent = true,
                 )
             }
 
@@ -99,14 +94,9 @@ class PopTopTest {
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(NavEntry(TestNavDestinations.Root))
                     },
-                    makeActive = true,
-               )
+                    setCurrent = true,
+                )
             }
         assertEquals(expectedState, navigator.currentState)
-    }
-
-    @AfterTest
-    fun tearDown() {
-        Dispatchers.resetMain()
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.backhandler.BackDispatcher
 import com.arkivanov.essenty.backhandler.BackHandler
+import dev.androidbroadcast.navstate.stack.NavStack
+import dev.androidbroadcast.navstate.stack.popTop
 import kotlinx.coroutines.Dispatchers
 
 public val LocalNavigator: ProvidableCompositionLocal<Navigator> =
@@ -30,14 +32,14 @@ public fun rememberNavState(): NavState {
 @Composable
 public fun rememberNavTopEntry(): NavEntry {
     val navState = rememberNavState()
-    return navState.activeStack.entries.last()
+    return navState.current.entries.last()
 }
 
 @Composable
 public fun rememberNavTopEntry(count: Int): List<NavEntry> {
     require(count > 0) { "count must be >= 1" }
     val navState = rememberNavState()
-    val entries = navState.activeStack.entries
+    val entries = navState.current.entries
     val startIndex = (entries.size - count).coerceAtLeast(0)
     return entries.subList(startIndex, entries.size)
 }
@@ -47,11 +49,15 @@ public fun rememberNavTopEntry(count: Int): List<NavEntry> {
 public fun NavHost(
     initialDestination: NavDest,
     onRootBack: () -> Unit,
-    initialStackId: String = NavState.DefaultStackId,
+    initialStackId: NavStructure.Id = NavState.DefaultStructId,
     content: @Composable () -> Unit,
 ) {
     NavHost(
-        initialState = NavState(initialDestination, initialStackId),
+        initialState = buildNavState {
+            val navStack = NavStack(id = initialStackId, entry = NavEntry(initialDestination))
+            add(navStack)
+            setCurrent(navStack.id)
+        },
         onRootBack,
         content,
     )
@@ -82,7 +88,7 @@ public fun NavHost(
     BackHandler(
         backHandler = platformBackDispatcher(),
         onBack = {
-            if (navigator.currentState.activeStack.entries.size > 1) {
+            if (navigator.currentState.current.entries.size > 1) {
                 navigator.enqueue(NavCommand.popTop(count = 1))
             } else {
                 onRootBack()

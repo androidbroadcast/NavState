@@ -4,44 +4,29 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class NavState(
-    val stacks: Set<NavStack>,
-    val activeStack: NavStack,
-) : Set<NavStack> by stacks {
+    public val structures: Set<NavStructure>,
+    public val currentId: NavStructure.Id,
+) : Set<NavStructure> by structures {
+
+    public val current: NavEntriesStructure by lazy {
+        structures.first { it.id == currentId } as NavEntriesStructure
+    }
 
     public companion object {
 
-        public const val DefaultStackId: String = "default"
+        public val DefaultStructId: NavStructure.Id = NavStructure.Id("default")
     }
 }
 
-public fun NavState(
-    stacks: Set<NavStack>,
-    activeStackId: String = NavState.DefaultStackId,
-): NavState {
-    val activeStack = stacks.find { it.id == activeStackId }
-    requireNotNull(activeStack) { "`stacks` must contain a stack with id $activeStackId" }
-    return NavState(
-        stacks = stacks,
-        activeStack = activeStack,
-    )
+public operator fun NavState.get(id: NavStructure.Id): NavStructure? {
+    return structures.firstNotNullOfOrNull { structure -> structure[id] }
 }
 
-public fun NavState(
-    initialDest: NavDest,
-    stackId: String = NavState.DefaultStackId,
-): NavState {
-    val stack = NavStack(stackId, listOf(NavEntry(initialDest)))
-    return NavState(
-        stacks = setOf(stack),
-        activeStack = stack,
-    )
-}
-
-public fun NavState.then(stack: NavStack): NavState {
+public fun NavState.then(struct: NavStructure): NavState {
     return copy(
-        stacks = buildSet {
-            addAll(this@then.stacks)
-            add(stack)
+        structures = buildSet {
+            addAll(this@then.structures)
+            add(struct)
         },
     )
 }
@@ -51,8 +36,8 @@ public inline fun NavState.buildNavState(
 ): NavState {
     return buildNavStateInternal(
         NavStateBuilder(
-            stacks = this.stacks,
-            activeStackId = activeStack.id,
+            structures = this.structures,
+            currentStructId = this.currentId,
         ),
         body,
     )
@@ -63,8 +48,7 @@ public inline fun buildNavState(
 ): NavState {
     return buildNavStateInternal(
         NavStateBuilder(
-            stacks = emptySet(),
-            activeStackId = null,
+            structures = emptySet(),
         ),
         body,
     )
@@ -76,45 +60,42 @@ internal inline fun buildNavStateInternal(
     body: NavStateBuilder.() -> Unit
 ): NavState = with(builder.apply(body)) {
     NavState(
-        stacks.values.toSet(),
-        activeStack = checkNotNull(activeStack) { "Active stack isn't set" },
+        structures = structs.values.toSet(),
+        currentId = requireNotNull(currentStructId) { "Current structure must be set" },
     )
 }
 
 public class NavStateBuilder @PublishedApi internal constructor(
-    stacks: Set<NavStack>,
-    private var activeStackId: String?,
+    structures: Set<NavStructure>,
+    @PublishedApi
+    internal var currentStructId: NavStructure.Id? = null
 ) {
 
     @PublishedApi
-    internal val activeStack: NavStack?
-        get() = activeStackId?.let(stacks::getValue)
-
-    @PublishedApi
-    internal val stacks: MutableMap<String, NavStack> =
-        stacks.associateBy(keySelector = { it.id })
+    internal val structs: MutableMap<NavStructure.Id, NavStructure> =
+        structures.associateBy(keySelector = { it.id })
             .toMutableMap()
 
-    public fun add(stack: NavStack, makeActive: Boolean = false): NavStateBuilder = apply {
-        stacks[stack.id] = stack
-        if (makeActive) activeStackId = stack.id
+    public fun setCurrent(id: NavStructure.Id?): NavStateBuilder = apply {
+        this.currentStructId = id
     }
 
-    public fun add(vararg stacks: NavStack): NavStateBuilder = apply {
-        this.stacks += stacks.associateBy { it.id }
+    public fun add(struct: NavStructure): NavStateBuilder = apply {
+        structs[struct.id] = struct
     }
 
-    public fun addAll(stacks: Collection<NavStack>): NavStateBuilder = apply {
-        this.stacks += stacks.associateBy { it.id }
+    public fun add(struct: NavEntriesStructure, setCurrent: Boolean = false): NavStateBuilder = apply {
+        structs[struct.id] = struct
+        if (setCurrent) setCurrent(struct.id)
     }
 
-    public fun setActive(stack: NavStack): NavStateBuilder = apply {
-        activeStackId = stack.id
+    public fun add(vararg structs: NavStructure): NavStateBuilder = apply {
+        this.structs += structs.associateBy { it.id }
     }
 
-    public fun setActive(stackId: String): NavStateBuilder = apply {
-        activeStackId = stackId
+    public fun addAll(structs: Collection<NavStructure>): NavStateBuilder = apply {
+        this.structs += structs.associateBy { it.id }
     }
 }
 
-public fun NavState.transform(command: NavCommand): NavState = command.execute(this)
+public fun NavState.transform(command: NavCommand): NavState = command.transform(this)

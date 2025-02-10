@@ -1,5 +1,6 @@
-package dev.androidbroadcast.navstate
+package dev.androidbroadcast.navstate.stack
 
+import dev.androidbroadcast.navstate.NavDest
 import kotlinx.serialization.Serializable
 
 sealed interface TestNavDestinations : NavDest {

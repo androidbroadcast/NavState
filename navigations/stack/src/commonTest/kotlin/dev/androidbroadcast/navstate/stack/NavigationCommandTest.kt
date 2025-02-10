@@ -1,7 +1,11 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package dev.androidbroadcast.navstate
+package dev.androidbroadcast.navstate.stack
 
+import dev.androidbroadcast.navstate.NavCommand
+import dev.androidbroadcast.navstate.NavStructure.Id
+import dev.androidbroadcast.navstate.Navigator
+import dev.androidbroadcast.navstate.buildNavState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
@@ -11,7 +15,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private const val NAV_STACK_DEFAULT = "default"
+private val NAV_STACK_DEFAULT = Id("default")
 
 class NavigationCommandTest {
 
@@ -28,15 +32,15 @@ class NavigationCommandTest {
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true
+                )
             }
 
         val navigator = Navigator(initialState)
         navigator.enqueue(
             NavCommand.forward(TestNavDestinations.Details("testId")),
-            )
+        )
 
         val expectedState =
             buildNavState {
@@ -45,9 +49,9 @@ class NavigationCommandTest {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
                         add(TestNavDestinations.Details("testId"))
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true
+                )
             }
         assertEquals(expectedState, navigator.currentState)
     }
@@ -60,14 +64,14 @@ class NavigationCommandTest {
                     buildNavStack(id = NAV_STACK_DEFAULT) {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.DataList)
-                                                          },
-                    makeActive = true,
-                    )
+                    },
+                    setCurrent = true
+                )
             }
         val navigator = Navigator(initialState)
         navigator.enqueue(
             NavCommand.popTop()
-                .forward(TestNavDestinations.Details("testId"))
+                .forward(TestNavDestinations.Details("testId")),
         )
 
         val expectedState =
@@ -77,7 +81,7 @@ class NavigationCommandTest {
                         add(TestNavDestinations.Root)
                         add(TestNavDestinations.Details("testId"))
                     },
-                    makeActive = true,
+                    setCurrent = true
                 )
             }
         assertEquals(expectedState, navigator.currentState)
